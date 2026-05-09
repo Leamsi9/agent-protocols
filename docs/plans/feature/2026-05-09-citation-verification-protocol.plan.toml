@@ -1,0 +1,138 @@
+title = "Citation verification protocol extraction"
+branch = "feature/citation-check-protocol-2026-05-09"
+baseline = "origin/main"
+root_dir = "../../.."
+phase_order = [
+  "setup",
+  "protocol_doc",
+  "tooling",
+  "packaging",
+  "validation",
+  "closeout",
+]
+
+[phases.setup]
+summary = "Establish the branch-owned worktree and durable plan."
+
+[[phases.setup.checks]]
+id = "branch-worktree-bound"
+type = "git_branch_worktree"
+repo = "."
+branch = "feature/citation-check-protocol-2026-05-09"
+path = "."
+
+[[phases.setup.checks]]
+id = "plan-exists"
+type = "path_exists"
+path = "docs/plans/feature/2026-05-09-citation-verification-protocol.md"
+
+[[phases.setup.checks]]
+id = "manifest-exists"
+type = "path_exists"
+path = "docs/plans/feature/2026-05-09-citation-verification-protocol.plan.toml"
+
+[phases.protocol_doc]
+summary = "Add the reusable citation-verification protocol."
+depends_on = ["setup"]
+
+[[phases.protocol_doc.checks]]
+id = "protocol-exists"
+type = "path_exists"
+path = "citation-verification-protocol.md"
+
+[[phases.protocol_doc.checks]]
+id = "protocol-levels"
+type = "regex_present"
+path = "citation-verification-protocol.md"
+pattern = "(?s)Level 1.*Level 2.*Level 3.*Level 4"
+
+[[phases.protocol_doc.checks]]
+id = "protocol-gated"
+type = "text_present"
+path = "citation-verification-protocol.md"
+text = "Do not advance"
+
+[phases.tooling]
+summary = "Extract reusable citation audit scripts and tests."
+depends_on = ["protocol_doc"]
+
+[[phases.tooling.checks]]
+id = "inventory-script-exists"
+type = "path_exists"
+path = "scripts/citation_inventory.py"
+
+[[phases.tooling.checks]]
+id = "audit-builder-exists"
+type = "path_exists"
+path = "scripts/citation_build_source_audit.py"
+
+[[phases.tooling.checks]]
+id = "content-checker-exists"
+type = "path_exists"
+path = "scripts/citation_check_content_support.py"
+
+[[phases.tooling.checks]]
+id = "audit-ledger-checker-exists"
+type = "path_exists"
+path = "scripts/citation_check_audit_ledger.py"
+
+[[phases.tooling.checks]]
+id = "citation-tests"
+type = "command"
+command = "python3 -m unittest tests.test_citation_tools"
+
+[[phases.tooling.checks]]
+id = "citation-scripts-compile"
+type = "command"
+command = "python3 -m py_compile scripts/citation_inventory.py scripts/citation_build_source_audit.py scripts/citation_check_content_support.py scripts/citation_check_audit_ledger.py"
+
+[phases.packaging]
+summary = "Wire protocol and tools into package docs and vendoring."
+depends_on = ["tooling"]
+
+[[phases.packaging.checks]]
+id = "installer-vendors-protocol"
+type = "text_present"
+path = "scripts/install.py"
+text = "citation-verification-protocol.md"
+
+[[phases.packaging.checks]]
+id = "readme-lists-protocol"
+type = "text_present"
+path = "README.md"
+text = "citation-verification-protocol.md"
+
+[[phases.packaging.checks]]
+id = "installer-tests"
+type = "command"
+command = "python3 -m unittest tests.test_repo_state"
+
+[phases.validation]
+summary = "Run full package validation."
+depends_on = ["packaging"]
+
+[[phases.validation.checks]]
+id = "all-tests"
+type = "command"
+command = "python3 -m unittest discover -s tests"
+
+[[phases.validation.checks]]
+id = "all-scripts-compile"
+type = "command"
+command = "python3 -m py_compile scripts/*.py"
+
+[phases.closeout]
+summary = "Commit the package change and leave the branch clean."
+depends_on = ["validation"]
+
+[[phases.closeout.checks]]
+id = "head-ahead-origin-main"
+type = "git_head_ahead"
+repo = "."
+baseline = "origin/main"
+ref = "HEAD"
+
+[[phases.closeout.checks]]
+id = "worktree-clean"
+type = "git_clean"
+repo = "."

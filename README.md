@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.11`
+Experimental package version: `0.0.12`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream
@@ -139,6 +139,9 @@ different repo.
   Canonical conventions for a repo-local `docs/plans/` surface.
 - `temp-doc-protocol.md`
   Canonical lifecycle for temporary working docs under `docs/temp/`.
+- `citation-verification-protocol.md`
+  Gated citation-audit workflow for verifying local citation inventory,
+  online metadata, source-content support, and verbatim quotations.
 - `local/README.md`
   Package-source marker for the consumer-owned local protocol overlay. Consumer
   files under `agent-protocols/local/` are not package-owned.
@@ -162,6 +165,16 @@ different repo.
 - `scripts/repo_state.py`
   Low-level branch/worktree/orphan checkout classifier with deterministic safe
   cleanup for stale registrations and redundant checkout directories.
+- `scripts/citation_inventory.py`
+  Mechanical BibTeX/source citation inventory checker.
+- `scripts/citation_build_source_audit.py`
+  Working-ledger generator for online metadata, content-support, and quote
+  verification rows.
+- `scripts/citation_check_content_support.py`
+  Deterministic checker for per-key source-content support ledgers.
+- `scripts/citation_check_audit_ledger.py`
+  Deterministic checker for metadata, content, and quote statuses in citation
+  audit ledgers.
 
 When an operator asks to "clean git", use the reconciliation inventory first
 instead of pruning branches blindly:

@@ -24,24 +24,32 @@ Refresh this ledger with:
 
 This section is generated from live git and worktree state by the agent-protocols workstream script.
 
-_Last generated: 2026-03-30T07:53:08.378148+00:00_
+_Last generated: 2026-05-09T00:58:10.676729+00:00_
 
 ### Summary
 | Repo | Main | Non-main branches | Attached worktrees | Dirty worktrees |
 | --- | --- | --- | --- | --- |
-| agent-protocols | main | 1 | 2 | 1 |
+| agent-protocols | main | 2 | 3 | 1 |
 
 ### Active, Promotable, And Diverged Branches
-None.
+| Repo | Branch | Class | Worktree | State | Ahead | Behind | Plan |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| agent-protocols | feature/citation-check-protocol-2026-05-09 | active | agent-protocols-citation-check-protocol-2026-05-09 | clean | - | - | [2026-05-09-citation-verification-protocol.md](/home/ismael/Github/.worktrees/agent-protocols-citation-check-protocol-2026-05-09/docs/plans/feature/2026-05-09-citation-verification-protocol.md) |
 
 ### Historical And Merged-Stale Branches
 | Repo | Branch | Class | Worktree | State | Ahead | Behind | Plan |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent-protocols | feature/agent-protocols/temp-doc-governance-2026-03-30 | merged_stale | agent-protocols-temp-doc-governance | dirty | - | - | [agent-protocols-temp-doc-governance-2026-03-30.md](/home/ismael/Github/.worktrees/agent-protocols-temp-doc-governance/docs/plans/cross-repo/feature/agent-protocols-temp-doc-governance-2026-03-30.md) |
+| agent-protocols | feat/ies-suggestion-foundations-2026-03-30 | merged_stale | agent-protocols-ies-suggestion-foundations | dirty | - | - | - |
 
 ### Pending Proposals Without Live Branches
 None.
 
 ### Branchless Plan Manifests
-None.
+| Branch | Class | Status | Proposal State | Plan |
+| --- | --- | --- | --- | --- |
+| chore/minor-work-protocol-package-sync-2026-04-29 | branchless_plan | completed | none | [2026-04-29-minor-work-protocol-package-sync.md](/home/ismael/Github/.worktrees/agent-protocols-citation-check-protocol-2026-05-09/docs/plans/sync/2026-04-29-minor-work-protocol-package-sync.md) |
+| feature/agent-protocols/temp-doc-governance-2026-03-30 | branchless_plan | in progress | none | [agent-protocols-temp-doc-governance-2026-03-30.md](/home/ismael/Github/.worktrees/agent-protocols-citation-check-protocol-2026-05-09/docs/plans/cross-repo/feature/agent-protocols-temp-doc-governance-2026-03-30.md) |
+| feature/closeout-git-gate-2026-05-02 | branchless_plan | unknown | none | [2026-05-02-closeout-git-gate-package-sync.md](/home/ismael/Github/.worktrees/agent-protocols-citation-check-protocol-2026-05-09/docs/plans/sync/2026-05-02-closeout-git-gate-package-sync.md) |
+| feature/git-cleanup-skill-2026-05-03 | branchless_plan | unknown | none | [2026-05-03-git-cleanup-skill-package-sync.md](/home/ismael/Github/.worktrees/agent-protocols-citation-check-protocol-2026-05-09/docs/plans/sync/2026-05-03-git-cleanup-skill-package-sync.md) |
+| feature/protocol-quality-gate-unification-2026-05-02 | branchless_plan | unknown | none | [2026-05-02-protocol-quality-gate-unification.md](/home/ismael/Github/.worktrees/agent-protocols-citation-check-protocol-2026-05-09/docs/plans/sync/2026-05-02-protocol-quality-gate-unification.md) |
 <!-- END GENERATED WORKSTREAM STATE -->
