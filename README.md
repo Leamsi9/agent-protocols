@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.13`
+Experimental package version: `0.0.14`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream
@@ -142,6 +142,9 @@ different repo.
 - `citation-verification-protocol.md`
   Gated citation-audit workflow for verifying local citation inventory,
   online metadata, source-content support, and verbatim quotations.
+- `text-authorship-integrity-protocol.md`
+  Gated prose-authorship workflow for reviewing AI-text detection risk through
+  provenance, source-grounded revision, and diagnostic-only detector signals.
 - `local/README.md`
   Package-source marker for the consumer-owned local protocol overlay. Consumer
   files under `agent-protocols/local/` are not package-owned.
@@ -153,6 +156,9 @@ different repo.
   Optional assistant skill for judging whether cited sources substantively
   support their manuscript invocation contexts, while keeping the citation
   verification protocol and deterministic gates as the canonical workflow.
+- `skills/text-authorship-integrity/SKILL.md`
+  Optional assistant skill for auditing and revising prose for authorship
+  integrity without turning the package into a detector-evasion toolkit.
 - `examples/gated-phase-manifest.example.toml`
   Reusable example manifest for gated mini-plans.
 - `scripts/check_gated_plan.py`
@@ -179,6 +185,9 @@ different repo.
 - `scripts/citation_check_audit_ledger.py`
   Deterministic checker for metadata, content, and quote statuses in citation
   audit ledgers.
+- `scripts/text_authorship_audit.py`
+  Deterministic local prose audit that seeds review-priority ledgers for
+  authorship-integrity work; it is not an AI detector.
 
 When an operator asks to "clean git", use the reconciliation inventory first
 instead of pruning branches blindly:

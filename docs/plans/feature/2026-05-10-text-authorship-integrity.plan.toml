@@ -1,0 +1,142 @@
+title = "Text authorship integrity protocol"
+branch = "feature/text-authorship-protocol-2026-05-10"
+baseline = "origin/main"
+root_dir = "../../.."
+phase_order = [
+  "setup",
+  "protocol",
+  "tooling",
+  "packaging",
+  "closeout",
+]
+
+[phases.setup]
+summary = "Establish the branch-owned worktree and durable plan."
+
+[[phases.setup.checks]]
+id = "branch-worktree-bound"
+type = "git_branch_worktree"
+repo = "."
+branch = "feature/text-authorship-protocol-2026-05-10"
+path = "."
+
+[[phases.setup.checks]]
+id = "plan-exists"
+type = "path_exists"
+path = "docs/plans/feature/2026-05-10-text-authorship-integrity.md"
+
+[[phases.setup.checks]]
+id = "manifest-exists"
+type = "path_exists"
+path = "docs/plans/feature/2026-05-10-text-authorship-integrity.plan.toml"
+
+[phases.protocol]
+summary = "Document the authorship-integrity protocol and skill adapter."
+depends_on = ["setup"]
+
+[[phases.protocol.checks]]
+id = "protocol-exists"
+type = "path_exists"
+path = "text-authorship-integrity-protocol.md"
+
+[[phases.protocol.checks]]
+id = "non-evasion"
+type = "text_present"
+path = "text-authorship-integrity-protocol.md"
+text = "Do not optimize text to bypass or defeat a detector"
+
+[[phases.protocol.checks]]
+id = "diagnostic-signals"
+type = "text_present"
+path = "text-authorship-integrity-protocol.md"
+text = "diagnostic signal"
+
+[[phases.protocol.checks]]
+id = "provenance-ledger"
+type = "text_present"
+path = "text-authorship-integrity-protocol.md"
+text = "text-authorship-audit.toml"
+
+[[phases.protocol.checks]]
+id = "skill-exists"
+type = "path_exists"
+path = "skills/text-authorship-integrity/SKILL.md"
+
+[[phases.protocol.checks]]
+id = "skill-points-to-protocol"
+type = "text_present"
+path = "skills/text-authorship-integrity/SKILL.md"
+text = "text-authorship-integrity-protocol.md"
+
+[phases.tooling]
+summary = "Add deterministic local prose audit tooling."
+depends_on = ["protocol"]
+
+[[phases.tooling.checks]]
+id = "script-exists"
+type = "path_exists"
+path = "scripts/text_authorship_audit.py"
+
+[[phases.tooling.checks]]
+id = "script-non-classifier"
+type = "text_present"
+path = "scripts/text_authorship_audit.py"
+text = "not an AI detector"
+
+[[phases.tooling.checks]]
+id = "tool-tests"
+type = "command"
+command = "python3 -m unittest tests.test_text_authorship_audit"
+
+[[phases.tooling.checks]]
+id = "tool-script-compile"
+type = "command"
+command = "python3 -m py_compile scripts/text_authorship_audit.py"
+
+[phases.packaging]
+summary = "Wire the protocol and tooling into package docs and vendoring."
+depends_on = ["tooling"]
+
+[[phases.packaging.checks]]
+id = "readme-lists-protocol"
+type = "text_present"
+path = "README.md"
+text = "text-authorship-integrity-protocol.md"
+
+[[phases.packaging.checks]]
+id = "installer-vendors-protocol"
+type = "text_present"
+path = "scripts/install.py"
+text = "text-authorship-integrity-protocol.md"
+
+[[phases.packaging.checks]]
+id = "version-bumped"
+type = "text_present"
+path = "VERSION"
+text = "0.0.14"
+
+[[phases.packaging.checks]]
+id = "all-tests"
+type = "command"
+command = "python3 -m unittest discover -s tests"
+
+[[phases.packaging.checks]]
+id = "scripts-compile"
+type = "command"
+command = "python3 -m py_compile scripts/*.py"
+
+[phases.closeout]
+summary = "Commit the package change and leave the branch clean."
+depends_on = ["packaging"]
+
+[[phases.closeout.checks]]
+id = "head-ahead-origin-main"
+type = "git_head_ahead"
+repo = "."
+baseline = "origin/main"
+ref = "HEAD"
+
+[[phases.closeout.checks]]
+id = "worktree-clean"
+type = "git_clean"
+repo = "."

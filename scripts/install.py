@@ -28,6 +28,7 @@ VENDORED_FILES = [
     "plan-protocol.md",
     "temp-doc-protocol.md",
     "citation-verification-protocol.md",
+    "text-authorship-integrity-protocol.md",
 ]
 OPTIONAL_VENDORED_FILES = [
     "LICENSE-MIT",

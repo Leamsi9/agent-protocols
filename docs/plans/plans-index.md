@@ -42,6 +42,7 @@ surfaces, not required companions for every proposal.
 
 - [Example workstream](feature/example-workstream.md)
 - [Citation verification protocol extraction, 2026-05-09](feature/2026-05-09-citation-verification-protocol.md)
+- [Text authorship integrity protocol, 2026-05-10](feature/2026-05-10-text-authorship-integrity.md)
 
 ### `sync/`
 
