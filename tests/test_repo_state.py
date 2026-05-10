@@ -173,6 +173,30 @@ class RepoStateTests(unittest.TestCase):
             self.assertTrue(skill.is_file())
             self.assertIn("name: git-cleanup", skill.read_text(encoding="utf-8"))
 
+    def test_installer_vendors_citation_protocol_and_tools(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_temp:
+            target = Path(raw_temp) / "consumer"
+            target.mkdir()
+            run_ok(
+                [
+                    "python3",
+                    str(INSTALLER),
+                    "--target",
+                    str(target),
+                    "--repo-id",
+                    "consumer",
+                    "--yes",
+                    "--skip-workspace-discovery",
+                ]
+            )
+            protocol = target / "agent-protocols" / "citation-verification-protocol.md"
+            inventory = target / "agent-protocols" / "scripts" / "citation_inventory.py"
+            ledger_gate = target / "agent-protocols" / "scripts" / "citation_check_audit_ledger.py"
+            self.assertTrue(protocol.is_file())
+            self.assertTrue(inventory.is_file())
+            self.assertTrue(ledger_gate.is_file())
+            self.assertIn("Level 1", protocol.read_text(encoding="utf-8"))
+
 
 if __name__ == "__main__":
     unittest.main()
