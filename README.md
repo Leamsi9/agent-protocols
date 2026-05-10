@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.12`
+Experimental package version: `0.0.13`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream
@@ -149,6 +149,10 @@ different repo.
   Optional assistant skill for independent git/worktree cleanup triage. It is
   package-owned so consumers can project it into Codex, Claude, Ironclaw, or
   another local skill surface without hand-copying the guidance.
+- `skills/citation-substance-review/SKILL.md`
+  Optional assistant skill for judging whether cited sources substantively
+  support their manuscript invocation contexts, while keeping the citation
+  verification protocol and deterministic gates as the canonical workflow.
 - `examples/gated-phase-manifest.example.toml`
   Reusable example manifest for gated mini-plans.
 - `scripts/check_gated_plan.py`

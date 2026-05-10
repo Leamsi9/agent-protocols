@@ -194,6 +194,115 @@ evidence = "https://doi.org/10.1000/example"
             self.assertIn("[roe2025]", rendered)
             self.assertIn('status = "todo"', rendered)
 
+    def test_content_support_substance_schema_requires_review_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_temp:
+            root = Path(raw_temp)
+            _, bib = write_fixture(root)
+            support = root / "support.toml"
+            support.write_text(
+                """
+[doe2026]
+status = "verified"
+note = "Supports the first claim."
+
+[roe2025]
+status = "verified"
+note = "Supports the second claim."
+support_type = "unsupported"
+claim_context = "The paper uses this source for an example context."
+source_locator = "Example page"
+evidence_note = "The source discusses an adjacent but different point."
+risk = "high"
+""",
+                encoding="utf-8",
+            )
+            failed = run(
+                [
+                    "python3",
+                    str(CONTENT_SUPPORT),
+                    "--bib",
+                    str(bib),
+                    "--support",
+                    str(support),
+                    "--schema",
+                    "substance",
+                ],
+                cwd=root,
+                check=False,
+            )
+            self.assertNotEqual(failed.returncode, 0)
+            self.assertIn("missing_substance_fields=doe2026.claim_context", failed.stderr)
+            self.assertIn("inconsistent_support_type_keys=roe2025.unsupported", failed.stderr)
+
+    def test_content_support_substance_schema_accepts_rich_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_temp:
+            root = Path(raw_temp)
+            _, bib = write_fixture(root)
+            support = root / "support.toml"
+            support.write_text(
+                """
+[doe2026]
+status = "verified"
+note = "Supports the first claim."
+support_type = "direct_support"
+claim_context = "The paper cites this source for the direct test fixture claim."
+source_locator = "Article abstract"
+evidence_note = "The abstract states the useful-source claim used here."
+risk = "low"
+
+[roe2025]
+status = "not_applicable"
+note = "Reference-list only in this fixture."
+support_type = "not_applicable"
+claim_context = "No substantive manuscript claim invokes this source."
+source_locator = "n/a"
+evidence_note = "No content-support judgement is needed for this fixture."
+risk = "not_applicable"
+""",
+                encoding="utf-8",
+            )
+            passed = run(
+                [
+                    "python3",
+                    str(CONTENT_SUPPORT),
+                    "--bib",
+                    str(bib),
+                    "--support",
+                    str(support),
+                    "--schema",
+                    "substance",
+                ],
+                cwd=root,
+            )
+            self.assertIn("content_support_status=complete", passed.stdout)
+
+    def test_content_support_update_can_seed_substance_schema(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_temp:
+            root = Path(raw_temp)
+            _, bib = write_fixture(root)
+            support = root / "support.toml"
+            run(
+                [
+                    "python3",
+                    str(CONTENT_SUPPORT),
+                    "--bib",
+                    str(bib),
+                    "--support",
+                    str(support),
+                    "--schema",
+                    "substance",
+                    "--update",
+                ],
+                cwd=root,
+                check=False,
+            )
+            rendered = support.read_text(encoding="utf-8")
+            self.assertIn('support_type = ""', rendered)
+            self.assertIn('claim_context = ""', rendered)
+            self.assertIn('source_locator = ""', rendered)
+            self.assertIn('evidence_note = ""', rendered)
+            self.assertIn('risk = ""', rendered)
+
     def test_audit_builder_and_ledger_gate_use_manual_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as raw_temp:
             root = Path(raw_temp)

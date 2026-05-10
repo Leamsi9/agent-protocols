@@ -1,0 +1,132 @@
+title = "Citation substance review protocol"
+branch = "feature/citation-substance-review-2026-05-10"
+baseline = "origin/main"
+root_dir = "../../.."
+phase_order = [
+  "setup",
+  "protocol",
+  "tooling",
+  "packaging",
+  "closeout",
+]
+
+[phases.setup]
+summary = "Establish the branch-owned worktree and durable plan."
+
+[[phases.setup.checks]]
+id = "branch-worktree-bound"
+type = "git_branch_worktree"
+repo = "."
+branch = "feature/citation-substance-review-2026-05-10"
+path = "."
+
+[[phases.setup.checks]]
+id = "plan-exists"
+type = "path_exists"
+path = "docs/plans/feature/2026-05-10-citation-substance-review.md"
+
+[[phases.setup.checks]]
+id = "manifest-exists"
+type = "path_exists"
+path = "docs/plans/feature/2026-05-10-citation-substance-review.plan.toml"
+
+[phases.protocol]
+summary = "Document the agent-facing citation relevance rubric and skill adapter."
+depends_on = ["setup"]
+
+[[phases.protocol.checks]]
+id = "protocol-direct-support"
+type = "text_present"
+path = "citation-verification-protocol.md"
+text = "direct_support"
+
+[[phases.protocol.checks]]
+id = "protocol-partial-support"
+type = "text_present"
+path = "citation-verification-protocol.md"
+text = "partial_support"
+
+[[phases.protocol.checks]]
+id = "protocol-unsupported"
+type = "text_present"
+path = "citation-verification-protocol.md"
+text = "unsupported"
+
+[[phases.protocol.checks]]
+id = "skill-exists"
+type = "path_exists"
+path = "skills/citation-substance-review/SKILL.md"
+
+[[phases.protocol.checks]]
+id = "skill-points-to-protocol"
+type = "text_present"
+path = "skills/citation-substance-review/SKILL.md"
+text = "citation-verification-protocol.md"
+
+[phases.tooling]
+summary = "Add deterministic schema checks for rich substance-review ledgers."
+depends_on = ["protocol"]
+
+[[phases.tooling.checks]]
+id = "schema-flag"
+type = "text_present"
+path = "scripts/citation_check_content_support.py"
+text = "--schema"
+
+[[phases.tooling.checks]]
+id = "required-fields"
+type = "text_present"
+path = "scripts/citation_check_content_support.py"
+text = "claim_context"
+
+[[phases.tooling.checks]]
+id = "citation-tests"
+type = "command"
+command = "python3 -m unittest tests.test_citation_tools"
+
+[[phases.tooling.checks]]
+id = "citation-script-compile"
+type = "command"
+command = "python3 -m py_compile scripts/citation_check_content_support.py"
+
+[phases.packaging]
+summary = "Wire the new skill adapter into package docs and installer vendoring."
+depends_on = ["tooling"]
+
+[[phases.packaging.checks]]
+id = "readme-lists-skill"
+type = "text_present"
+path = "README.md"
+text = "skills/citation-substance-review/SKILL.md"
+
+[[phases.packaging.checks]]
+id = "installer-vendors-skills"
+type = "text_present"
+path = "scripts/install.py"
+text = "\"skills\""
+
+[[phases.packaging.checks]]
+id = "all-tests"
+type = "command"
+command = "python3 -m unittest discover -s tests"
+
+[[phases.packaging.checks]]
+id = "scripts-compile"
+type = "command"
+command = "python3 -m py_compile scripts/*.py"
+
+[phases.closeout]
+summary = "Commit the package change and leave the branch clean."
+depends_on = ["packaging"]
+
+[[phases.closeout.checks]]
+id = "head-ahead-origin-main"
+type = "git_head_ahead"
+repo = "."
+baseline = "origin/main"
+ref = "HEAD"
+
+[[phases.closeout.checks]]
+id = "worktree-clean"
+type = "git_clean"
+repo = "."

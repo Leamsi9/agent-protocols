@@ -169,37 +169,81 @@ Checks:
 - correct the manuscript or bibliography before marking a row `verified`;
 - record a short content-support note for each bibliography key.
 
+Agent judgement is expected at this level. The deterministic tools can create
+rows, preserve evidence, enforce schema, and fail incomplete gates, but they do
+not by themselves decide scholarly relevance. An assistant or reviewer should
+apply the rubric below, record the judgement in the ledger, and leave the gate
+red whenever the source does not substantively support its invocation context.
+
+### Substance-Review Rubric
+
+For each cited source, inspect the citation's local invocation context before
+reading the source. Identify the smallest claim the citation is asked to carry:
+a quantitative anchor, empirical example, method precedent, conceptual framing,
+definition, background context, or quotation. Then inspect the source at the
+most precise available locator and classify support with this vocabulary:
+
+- `direct_support`: the source directly supports the specific claim, number,
+  definition, event, or relationship in the manuscript.
+- `contextual_support`: the source supports background context or field
+  orientation, but is not carrying a headline empirical or quantitative claim.
+- `method_support`: the source supports a method, sampling logic, metric,
+  accounting convention, or analytical framing.
+- `partial_support`: the source supports only part of the claim, or the
+  manuscript currently overstates scope, population, timing, causality, or
+  certainty.
+- `misplaced`: the source is relevant to the paper but not to this citation
+  location.
+- `unsupported`: the source does not support the claim.
+- `blocked`: source access, locator ambiguity, paywall limits, or contradictory
+  metadata prevent a substantive judgement.
+- `not_applicable`: no substantive claim invokes this bibliography entry.
+
+Only `direct_support`, `contextual_support`, and `method_support` should normally
+appear with `status = "verified"`. Use `partial_support`, `misplaced`,
+`unsupported`, or `blocked` while fixing the manuscript, narrowing the claim,
+moving the citation, replacing the source, or recording a blocker. After a fix,
+reclassify the row according to the corrected invocation.
+
 Recommended ledger shape:
 
 ```toml
 [example2026source]
 status = "verified"
 note = "Used for the 2030 data-centre electricity projection; the report section states the projection and scenario boundary."
+support_type = "direct_support"
+claim_context = "The manuscript uses this source for the 2030 data-centre electricity projection."
+source_locator = "Report section 2.1, table 3"
+evidence_note = "The source gives the same projection under the same scenario boundary."
+risk = "low"
 evidence = "https://example.org/report"
 ```
 
-The protocol can automate ledger coverage, not source-claim judgement. Use the
-content-support checker in update mode to create a complete TOML scaffold from
-the bibliography, preserve existing rows, and optionally seed rows from a prior
-audit:
+Use the richer substance schema when the audit should prove not just coverage
+but the presence of an agent-recorded relevance judgement:
 
 ```bash
 python3 agent-protocols/scripts/citation_check_content_support.py \
   --bib references.bib \
   --support docs/temp/citation-content-support.toml \
   --merge-from ../old-audit/docs/temp/citation-content-support.toml \
+  --schema substance \
   --update
 ```
 
 Rows seeded this way remain `todo` until an agent or reviewer records a support
-note and marks the row `verified` or justified `not_applicable`.
+note, a support type, invocation context, source locator, evidence note, risk,
+and a final status. Existing basic ledgers remain valid for audits that only
+need `status` and `note`; use `--schema substance` when the substantive
+relevance rubric is required.
 
 Recommended gate:
 
 ```bash
 python3 agent-protocols/scripts/citation_check_content_support.py \
   --bib references.bib \
-  --support docs/temp/citation-content-support.toml
+  --support docs/temp/citation-content-support.toml \
+  --schema substance
 
 python3 agent-protocols/scripts/citation_check_audit_ledger.py \
   --bib references.bib \

@@ -14,6 +14,26 @@ from citation_inventory import BibEntry, parse_all_bib_entries
 
 PASSING_STATUSES = {"verified", "not_applicable"}
 DEFAULT_STATUS = "todo"
+SCHEMAS = {"basic", "substance"}
+SUBSTANCE_FIELDS = (
+    "support_type",
+    "claim_context",
+    "source_locator",
+    "evidence_note",
+    "risk",
+)
+SUPPORT_TYPES = {
+    "direct_support",
+    "contextual_support",
+    "method_support",
+    "partial_support",
+    "misplaced",
+    "unsupported",
+    "blocked",
+    "not_applicable",
+}
+PASSING_SUPPORT_TYPES = {"direct_support", "contextual_support", "method_support"}
+RISK_LEVELS = {"low", "medium", "high", "blocked", "not_applicable"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -38,6 +58,15 @@ def parse_args() -> argparse.Namespace:
             "--support file is applied. May be passed more than once."
         ),
     )
+    parser.add_argument(
+        "--schema",
+        choices=sorted(SCHEMAS),
+        default="basic",
+        help=(
+            "Ledger schema to enforce. 'basic' requires status and note. "
+            "'substance' also requires agent substance-review fields."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -58,13 +87,26 @@ def toml_string(value: str) -> str:
     return json.dumps(value)
 
 
-def render_support_payload(entries: list[BibEntry], payload: dict[str, dict[str, str]]) -> str:
+def render_support_payload(
+    entries: list[BibEntry],
+    payload: dict[str, dict[str, str]],
+    *,
+    schema: str = "basic",
+) -> str:
     lines = [
         "# Manual content-support ledger for the source_content gate.",
         "# Each row records why the source content supports the way the manuscript uses it.",
         "# The --update mode preserves existing evidence and seeds missing rows as todo.",
-        "",
     ]
+    if schema == "substance":
+        lines.extend(
+            [
+                "# Substance schema fields make the agent relevance judgement auditable.",
+                "# support_type: direct_support | contextual_support | method_support | partial_support | misplaced | unsupported | blocked | not_applicable",
+                "# risk: low | medium | high | blocked | not_applicable",
+            ]
+        )
+    lines.append("")
     for entry in entries:
         row = dict(payload.get(entry.key, {}))
         status = row.pop("status", DEFAULT_STATUS).strip() or DEFAULT_STATUS
@@ -72,6 +114,10 @@ def render_support_payload(entries: list[BibEntry], payload: dict[str, dict[str,
         lines.append(f"[{entry.key}]")
         lines.append(f"status = {toml_string(status)}")
         lines.append(f"note = {toml_string(note)}")
+        if schema == "substance":
+            for field in SUBSTANCE_FIELDS:
+                value = row.pop(field, "").strip()
+                lines.append(f"{field} = {toml_string(value)}")
         for field in sorted(row):
             lines.append(f"{field} = {toml_string(row[field])}")
         lines.append("")
@@ -82,6 +128,8 @@ def update_support_ledger(
     entries: list[BibEntry],
     support_path: Path,
     merge_from: list[Path],
+    *,
+    schema: str = "basic",
 ) -> None:
     payload: dict[str, dict[str, str]] = {}
     for seed_path in merge_from:
@@ -90,7 +138,49 @@ def update_support_ledger(
     if support_path.exists():
         payload.update(load_support_payload(support_path))
     support_path.parent.mkdir(parents=True, exist_ok=True)
-    support_path.write_text(render_support_payload(entries, payload), encoding="utf-8")
+    support_path.write_text(
+        render_support_payload(entries, payload, schema=schema),
+        encoding="utf-8",
+    )
+
+
+def check_substance_fields(payload: dict[str, dict[str, str]]) -> list[str]:
+    missing_fields: list[str] = []
+    bad_support_type: list[str] = []
+    bad_risk: list[str] = []
+    inconsistent_support_type: list[str] = []
+
+    for key, value in payload.items():
+        for field in SUBSTANCE_FIELDS:
+            if not str(value.get(field, "")).strip():
+                missing_fields.append(f"{key}.{field}")
+
+        support_type = str(value.get("support_type", "")).strip()
+        risk = str(value.get("risk", "")).strip()
+        status = str(value.get("status", "")).strip()
+
+        if support_type and support_type not in SUPPORT_TYPES:
+            bad_support_type.append(f"{key}.{support_type}")
+        if risk and risk not in RISK_LEVELS:
+            bad_risk.append(f"{key}.{risk}")
+        if status == "verified" and support_type and support_type not in PASSING_SUPPORT_TYPES:
+            inconsistent_support_type.append(f"{key}.{support_type}")
+        if status == "not_applicable" and support_type and support_type != "not_applicable":
+            inconsistent_support_type.append(f"{key}.{support_type}")
+
+    messages: list[str] = []
+    if missing_fields:
+        messages.append("missing_substance_fields=" + ", ".join(sorted(missing_fields)))
+    if bad_support_type:
+        messages.append("bad_support_type_values=" + ", ".join(sorted(bad_support_type)))
+    if bad_risk:
+        messages.append("bad_risk_values=" + ", ".join(sorted(bad_risk)))
+    if inconsistent_support_type:
+        messages.append(
+            "inconsistent_support_type_keys="
+            + ", ".join(sorted(inconsistent_support_type))
+        )
+    return messages
 
 
 def check_content_support(
@@ -99,10 +189,11 @@ def check_content_support(
     *,
     update: bool = False,
     merge_from: list[Path] | None = None,
+    schema: str = "basic",
 ) -> tuple[bool, list[str]]:
     entries = parse_all_bib_entries(bib_paths)
     if update:
-        update_support_ledger(entries, support_path, merge_from or [])
+        update_support_ledger(entries, support_path, merge_from or [], schema=schema)
     if not support_path.exists():
         return False, [f"missing content support ledger: {support_path}"]
 
@@ -134,6 +225,8 @@ def check_content_support(
         messages.append("bad_content_status_keys=" + ", ".join(sorted(bad_status)))
     if missing_note:
         messages.append("missing_content_note_keys=" + ", ".join(sorted(missing_note)))
+    if schema == "substance":
+        messages.extend(check_substance_fields(payload))
 
     if messages:
         return False, messages
@@ -148,6 +241,7 @@ def main() -> int:
             args.support,
             update=args.update,
             merge_from=args.merge_from,
+            schema=args.schema,
         )
     except Exception as exc:  # noqa: BLE001 - CLI should report audit failure.
         print(f"content support check error: {exc}", file=sys.stderr)
