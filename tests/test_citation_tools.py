@@ -155,6 +155,45 @@ note = "Reference-list only in this fixture."
             )
             self.assertIn("content_support_count=2", passed.stdout)
 
+    def test_content_support_update_seeds_missing_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_temp:
+            root = Path(raw_temp)
+            _, bib = write_fixture(root)
+            old_support = root / "old-support.toml"
+            support = root / "support.toml"
+            old_support.write_text(
+                """
+[doe2026]
+status = "verified"
+note = "Supports the first claim."
+evidence = "https://doi.org/10.1000/example"
+""",
+                encoding="utf-8",
+            )
+            failed = run(
+                [
+                    "python3",
+                    str(CONTENT_SUPPORT),
+                    "--bib",
+                    str(bib),
+                    "--support",
+                    str(support),
+                    "--merge-from",
+                    str(old_support),
+                    "--update",
+                ],
+                cwd=root,
+                check=False,
+            )
+            self.assertNotEqual(failed.returncode, 0)
+            self.assertIn("bad_content_status_keys=roe2025", failed.stderr)
+            rendered = support.read_text(encoding="utf-8")
+            self.assertIn("[doe2026]", rendered)
+            self.assertIn('status = "verified"', rendered)
+            self.assertIn('evidence = "https://doi.org/10.1000/example"', rendered)
+            self.assertIn("[roe2025]", rendered)
+            self.assertIn('status = "todo"', rendered)
+
     def test_audit_builder_and_ledger_gate_use_manual_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as raw_temp:
             root = Path(raw_temp)

@@ -178,6 +178,22 @@ note = "Used for the 2030 data-centre electricity projection; the report section
 evidence = "https://example.org/report"
 ```
 
+The protocol can automate ledger coverage, not source-claim judgement. Use the
+content-support checker in update mode to create a complete TOML scaffold from
+the bibliography, preserve existing rows, and optionally seed rows from a prior
+audit:
+
+```bash
+python3 agent-protocols/scripts/citation_check_content_support.py \
+  --bib references.bib \
+  --support docs/temp/citation-content-support.toml \
+  --merge-from ../old-audit/docs/temp/citation-content-support.toml \
+  --update
+```
+
+Rows seeded this way remain `todo` until an agent or reviewer records a support
+note and marks the row `verified` or justified `not_applicable`.
+
 Recommended gate:
 
 ```bash
