@@ -56,13 +56,20 @@ It does not replace:
    meaningful failing test for the intended behavior, add the code, then prove
    the same test passes. Do not make the test weak enough for incomplete or
    buggy code to pass.
-8. After the change lands, decide whether the decision behind it is worth
+8. Before landing, opening a PR, or treating the branch's final commit as
+   complete, run a full-diff code review gate. Look especially for side
+   effects on nearby code paths, shared helpers, data contracts, runtime
+   configuration, permissions, public APIs, and user-visible workflows. If a
+   side effect is plausible, add or run the focused test or validation needed
+   to prove the risk is mitigated. Do not guess that side effects are safe
+   because the change is small.
+9. After the change lands, decide whether the decision behind it is worth
    preserving in a durable record. For most minor work the answer is no; for
    some it is yes.
-9. Any final `ready for review`, `complete`, `passed`, or equivalent result
+10. Any final `ready for review`, `complete`, `passed`, or equivalent result
    requires a clean git checkpoint. A dirty worktree at final response time is
    a failed gate, not a degraded completion.
-10. If the work involves branch/worktree cleanup or ambiguous git state, run
+11. If the work involves branch/worktree cleanup or ambiguous git state, run
    `agent-protocols/scripts/repo_state.py` before pruning, deleting, or
    classifying git artifacts by hand.
 
@@ -129,13 +136,37 @@ worktree is created, follow the substantive protocol's naming convention.
 
 Closeout for minor work is:
 
-1. ensure the change is on the integration branch and pushed when the repo
+1. run the final code review gate and resolve any side-effect risk with added
+   or rerun tests where needed
+2. ensure the change is on the integration branch and pushed when the repo
    policy expects a remote checkpoint
-2. delete the local branch if one was used
-3. add a decision-log entry only when the decision is worth preserving
+3. if a PR is required, write the PR body with the
+   [Pull request protocol](pull-request-protocol.md)
+4. delete the local branch if one was used
+5. add a decision-log entry only when the decision is worth preserving
 
 A decision-log entry is not a substitute for substantive completion evidence.
 It is a lightweight historical breadcrumb, not a gate.
+
+## Final Code Review Gate
+
+Run this gate after the focused change and required docs updates are in place,
+but before landing, opening a PR, or reporting the branch's final commit as the
+complete reviewable result.
+
+The review must inspect the full branch diff against the starting baseline and
+ask where the small change could have side effects beyond the directly edited
+lines. For each plausible risk, prove the mitigation before proceeding:
+
+- add or update a focused automated test when the risk is code-testable
+- run the existing regression, integration, or contract test that covers the
+  side effect
+- perform a narrow manual validation only when automation is not practical, and
+  record why that manual check is the right evidence
+
+If the review finds a real defect or an unproven risk, fix it and rerun the
+relevant checks before closeout. Do not proceed on "looks safe" reasoning
+alone.
 
 ## Repo-State Audit
 

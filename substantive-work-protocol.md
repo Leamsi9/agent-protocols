@@ -58,7 +58,14 @@ use this protocol unless there is a very good reason not to.
     that fails for the missing behavior, add the implementation, then prove
     the same test passes. Do not weaken the test to fit incomplete or buggy
     code.
-14. For implementation work, a final `ready for review`, `complete`, or
+14. Before opening a PR, merging, or treating the branch's final commit as
+    complete, run a full-diff code review gate. Look especially for side
+    effects on adjacent code paths, data contracts, runtime configuration,
+    migrations, permissions, public APIs, and user-visible workflows. If the
+    review identifies a plausible side effect, add or run the narrow automated
+    test, integration check, or documented manual validation needed to prove
+    the risk is mitigated. Do not guess that side effects are safe.
+15. For implementation work, a final `ready for review`, `complete`, or
     equivalent result requires a clean git checkpoint: `git status
     --porcelain --untracked-files=all` must be empty, `HEAD` must be ahead of
     the recorded baseline, and the final answer or completion record must
@@ -249,7 +256,12 @@ For substantive work, follow this loop every time:
    maps required by that phase.
 14. Re-run the phase checker.
 15. Advance only when the phase is green.
-16. Merge only after acceptance and final-green closure.
+16. Before opening a PR or treating the final branch commit as complete, run
+    the final code review gate and resolve any side-effect risk with added or
+    rerun tests where needed.
+17. If a PR is required, write the PR body with the
+    [Pull request protocol](pull-request-protocol.md).
+18. Merge only after acceptance and final-green closure.
 
 ## Repo-State Audit
 
@@ -272,6 +284,36 @@ migrations, production state, or any ambiguous path.
 
 Run a second plain audit before closeout when the phase changes branch or
 worktree state, or when the work includes cleanup.
+
+## Final Code Review Gate
+
+Run this gate after implementation and required docs updates are in place, but
+before opening a PR, merging, or reporting the branch's final commit as the
+complete reviewable result.
+
+The review must inspect the full branch diff against the recorded baseline and
+ask where the change could have side effects beyond the directly edited lines.
+Pay special attention to:
+
+- adjacent call sites and shared helpers
+- data contracts, schemas, migrations, and persisted formats
+- runtime configuration, environment variables, feature flags, and deployment
+  wiring
+- permissions, authentication, billing, privacy, and security boundaries
+- public APIs, CLI commands, scheduled jobs, and background workers
+- user-visible flows, browser behavior, and mobile-specific layouts
+
+For each plausible risk, prove the mitigation before proceeding:
+
+- add or update a focused automated test when the risk is code-testable
+- run the existing regression, integration, or contract test that covers the
+  side effect
+- perform a narrow manual validation only when automation is not practical, and
+  record why that manual check is the right evidence
+
+If the review finds a real defect or an unproven risk, return to the relevant
+implementation phase. Do not proceed to PR, merge, or final branch checkpoint
+on "looks safe" reasoning alone.
 
 ## Final Git Checkpoint
 

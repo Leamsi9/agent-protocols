@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.13`
+Experimental package version: `0.0.14`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream
@@ -123,6 +123,9 @@ different repo.
 - `merge-to-main-protocol.md`
   Canonical workflow for promoting scoped changes to `main` through GitHub
   pull requests.
+- `pull-request-protocol.md`
+  Invocable PR-body protocol that standardizes the Issue or Feature,
+  Implementation Rationale, Risks and Mitigations, and Tests sections.
 - `substantive-work-protocol.md`
   Canonical workflow for non-trivial implementation work.
 - `minor-work-protocol.md`

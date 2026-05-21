@@ -21,6 +21,7 @@ VENDORED_FILES = [
     "assistant-integration.md",
     "assistant-adoption-prompt.md",
     "merge-to-main-protocol.md",
+    "pull-request-protocol.md",
     "substantive-work-protocol.md",
     "minor-work-protocol.md",
     "delegated-work-protocol.md",

@@ -197,6 +197,30 @@ class RepoStateTests(unittest.TestCase):
             self.assertTrue(ledger_gate.is_file())
             self.assertIn("Level 1", protocol.read_text(encoding="utf-8"))
 
+    def test_installer_vendors_pull_request_protocol(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_temp:
+            target = Path(raw_temp) / "consumer"
+            target.mkdir()
+            run_ok(
+                [
+                    "python3",
+                    str(INSTALLER),
+                    "--target",
+                    str(target),
+                    "--repo-id",
+                    "consumer",
+                    "--yes",
+                    "--skip-workspace-discovery",
+                ]
+            )
+            protocol = target / "agent-protocols" / "pull-request-protocol.md"
+            self.assertTrue(protocol.is_file())
+            content = protocol.read_text(encoding="utf-8")
+            self.assertIn("## Issue or Feature", content)
+            self.assertIn("## Implementation Rationale", content)
+            self.assertIn("## Risks and Mitigations", content)
+            self.assertIn("## Tests", content)
+
 
 if __name__ == "__main__":
     unittest.main()
