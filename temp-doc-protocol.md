@@ -59,10 +59,26 @@ If there is no stable feature slug yet, place the file directly under
 2. Review them before closing the task.
 3. Preserve any durable content in `docs/plans/`, `docs/proposals/`,
    `docs/adr/`, `docs/history/`, or the commit message as appropriate.
-4. Delete the temp docs after preservation.
+4. Delete the temp docs, scratch outputs, editor lock files, generated
+   inventories, and placeholder examples after preservation.
 
 At steady state, `docs/temp/` should normally contain only its `README.md` or a
 small number of active task notes.
+
+## Cleanup Gate
+
+Every substantive or minor closeout should include a temp cleanup gate.
+
+The gate passes only when each temp artifact has one of these dispositions:
+
+- promoted into a durable surface and deleted from `docs/temp/`
+- deleted because it was scratch evidence, generated output, or an editor lock
+  file
+- kept because it is still an active task note, with that reason recorded in
+  the plan, completion log, commit message, or final result
+
+Do not leave temp files behind merely because they are harmless. If they are not
+active and not durable, remove them before the final git checkpoint.
 
 ## Indexing And Ledgers
 

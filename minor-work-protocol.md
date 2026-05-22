@@ -136,17 +136,31 @@ worktree is created, follow the substantive protocol's naming convention.
 
 Closeout for minor work is:
 
-1. run the final code review gate and resolve any side-effect risk with added
+1. run the temp artifact cleanup gate: preserve durable content, then delete
+   temporary files, lock files, scratch inventories, and placeholder examples
+   that are not meant to survive
+2. run the final code review gate and resolve any side-effect risk with added
    or rerun tests where needed
-2. ensure the change is on the integration branch and pushed when the repo
+3. ensure the change is on the integration branch and pushed when the repo
    policy expects a remote checkpoint
-3. if a PR is required, write the PR body with the
+4. if a PR is required, write the PR body with the
    [Pull request protocol](pull-request-protocol.md)
-4. delete the local branch if one was used
-5. add a decision-log entry only when the decision is worth preserving
+5. delete the local branch if one was used
+6. add a decision-log entry only when the decision is worth preserving
 
 A decision-log entry is not a substitute for substantive completion evidence.
 It is a lightweight historical breadcrumb, not a gate.
+
+## Temp Artifact Cleanup Gate
+
+Run this gate after the focused change and validation evidence are in place,
+but before final code review, landing, or final git checkpoint.
+
+Review `docs/temp/` and any other temporary location touched by the minor
+change. Promote any durable finding into the right long-lived surface, then
+delete temporary files, editor lock files, scratch outputs, and placeholder
+example plans that are not meant to survive. `docs/temp/` should normally end
+with only `README.md` unless an active follow-up note is explicitly justified.
 
 ## Final Code Review Gate
 

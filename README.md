@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.14`
+Experimental package version: `0.0.15`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream
@@ -142,6 +142,8 @@ different repo.
   Canonical conventions for a repo-local `docs/plans/` surface.
 - `temp-doc-protocol.md`
   Canonical lifecycle for temporary working docs under `docs/temp/`.
+  Substantive and minor closeout gates use it to remove scratch files before
+  final review or checkpoint.
 - `citation-verification-protocol.md`
   Gated citation-audit workflow for verifying local citation inventory,
   online metadata, source-content support, and verbatim quotations.

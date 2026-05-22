@@ -41,6 +41,12 @@ path = "substantive-work-protocol.md"
 text = "## Final Code Review Gate"
 
 [[phases.protocol_updates.checks]]
+id = "substantive-temp-cleanup-gate"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "## Temp Artifact Cleanup Gate"
+
+[[phases.protocol_updates.checks]]
 id = "substantive-side-effects-tested"
 type = "text_present"
 path = "substantive-work-protocol.md"
@@ -51,6 +57,12 @@ id = "minor-review-gate"
 type = "text_present"
 path = "minor-work-protocol.md"
 text = "## Final Code Review Gate"
+
+[[phases.protocol_updates.checks]]
+id = "minor-temp-cleanup-gate"
+type = "text_present"
+path = "minor-work-protocol.md"
+text = "## Temp Artifact Cleanup Gate"
 
 [[phases.protocol_updates.checks]]
 id = "minor-side-effects-tested"
@@ -95,13 +107,13 @@ text = "pull-request-protocol.md"
 id = "version-file-updated"
 type = "text_present"
 path = "VERSION"
-text = "0.0.14"
+text = "0.0.15"
 
 [[phases.packaging.checks]]
 id = "readme-version-updated"
 type = "text_present"
 path = "README.md"
-text = "Experimental package version: `0.0.14`"
+text = "Experimental package version: `0.0.15`"
 
 [[phases.packaging.checks]]
 id = "installer-pr-protocol-test"

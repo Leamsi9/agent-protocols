@@ -257,11 +257,15 @@ For substantive work, follow this loop every time:
 14. Re-run the phase checker.
 15. Advance only when the phase is green.
 16. Before opening a PR or treating the final branch commit as complete, run
+    the temp artifact cleanup gate. Preserve durable content in the proper
+    long-lived surface, then delete temporary files, lock files, scratch
+    inventories, and placeholder example plans that are not meant to survive.
+17. Before opening a PR or treating the final branch commit as complete, run
     the final code review gate and resolve any side-effect risk with added or
     rerun tests where needed.
-17. If a PR is required, write the PR body with the
+18. If a PR is required, write the PR body with the
     [Pull request protocol](pull-request-protocol.md).
-18. Merge only after acceptance and final-green closure.
+19. Merge only after acceptance and final-green closure.
 
 ## Repo-State Audit
 
@@ -284,6 +288,25 @@ migrations, production state, or any ambiguous path.
 
 Run a second plain audit before closeout when the phase changes branch or
 worktree state, or when the work includes cleanup.
+
+## Temp Artifact Cleanup Gate
+
+Run this gate after implementation, validation evidence, and durable docs are
+in place, but before PR, merge, final code review, or final git checkpoint.
+
+Inspect `docs/temp/` and any other repo-approved temporary location used by
+the workstream. For every temporary artifact:
+
+- promote durable findings into `docs/plans/`, `docs/proposals/`, `docs/adr/`,
+  `docs/history/`, a completion log, or the commit message
+- keep only active notes that are still needed for an ongoing unclosed branch
+- delete scratch inventories, draft ledgers, temporary JSON outputs, editor
+  lock files, generated test remnants, and placeholder example plans that are
+  not meant to survive
+
+At closeout, `docs/temp/` should normally contain only `README.md` plus any
+explicitly active task notes. If a temp artifact must remain, record why it is
+still active in the plan, completion log, or final result.
 
 ## Final Code Review Gate
 

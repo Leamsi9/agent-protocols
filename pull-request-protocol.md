@@ -12,8 +12,10 @@ merge mechanics.
 Before writing the PR body:
 
 1. Finish the applicable substantive or minor work protocol gate.
-2. Run the final code review gate for the full branch diff.
-3. Resolve side-effect risks with added or rerun tests where the risk is
+2. Run the temp artifact cleanup gate and remove temporary residue that should
+   not survive review.
+3. Run the final code review gate for the full branch diff.
+4. Resolve side-effect risks with added or rerun tests where the risk is
    testable. If automation is not practical, record the narrow manual
    validation and why it is the right evidence.
 
