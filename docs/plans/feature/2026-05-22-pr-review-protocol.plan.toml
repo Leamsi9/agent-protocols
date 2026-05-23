@@ -1,5 +1,5 @@
 title = "PR review protocol update"
-branch = "feature/pr-review-protocol-2026-05-22"
+branch = "main"
 baseline = "origin/main"
 root_dir = "../../.."
 phase_order = [
@@ -17,7 +17,7 @@ summary = "Establish the branch-owned worktree and durable plan."
 id = "branch-worktree-bound"
 type = "git_branch_worktree"
 repo = "."
-branch = "feature/pr-review-protocol-2026-05-22"
+branch = "main"
 path = "."
 
 [[phases.setup.checks]]
@@ -50,7 +50,25 @@ text = "## Temp Artifact Cleanup Gate"
 id = "substantive-side-effects-tested"
 type = "text_present"
 path = "substantive-work-protocol.md"
-text = "Do not guess that side effects are safe."
+text = "Do not guess that"
+
+[[phases.protocol_updates.checks]]
+id = "substantive-independent-review"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "fresh independent review context"
+
+[[phases.protocol_updates.checks]]
+id = "substantive-subagent-review"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "subagent"
+
+[[phases.protocol_updates.checks]]
+id = "substantive-review-fallback"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "independent-style full-diff review"
 
 [[phases.protocol_updates.checks]]
 id = "minor-review-gate"
@@ -68,7 +86,25 @@ text = "## Temp Artifact Cleanup Gate"
 id = "minor-side-effects-tested"
 type = "text_present"
 path = "minor-work-protocol.md"
-text = "Do not guess that side effects are safe"
+text = "Do not guess that"
+
+[[phases.protocol_updates.checks]]
+id = "minor-independent-review"
+type = "text_present"
+path = "minor-work-protocol.md"
+text = "fresh independent review context"
+
+[[phases.protocol_updates.checks]]
+id = "minor-subagent-review"
+type = "text_present"
+path = "minor-work-protocol.md"
+text = "subagent"
+
+[[phases.protocol_updates.checks]]
+id = "minor-review-fallback"
+type = "text_present"
+path = "minor-work-protocol.md"
+text = "independent-style full-diff review"
 
 [[phases.protocol_updates.checks]]
 id = "pr-protocol-exists"
@@ -80,6 +116,24 @@ id = "pr-protocol-required-format"
 type = "regex_present"
 path = "pull-request-protocol.md"
 pattern = "(?s)## Issue or Feature.*## Implementation Rationale.*## Risks and Mitigations.*## Tests"
+
+[[phases.protocol_updates.checks]]
+id = "pr-protocol-independent-review"
+type = "text_present"
+path = "pull-request-protocol.md"
+text = "fresh independent review context"
+
+[[phases.protocol_updates.checks]]
+id = "pr-protocol-subagent-review"
+type = "text_present"
+path = "pull-request-protocol.md"
+text = "subagent"
+
+[[phases.protocol_updates.checks]]
+id = "pr-protocol-review-fallback"
+type = "text_present"
+path = "pull-request-protocol.md"
+text = "independent-style full-diff review"
 
 [[phases.protocol_updates.checks]]
 id = "merge-protocol-invokes-pr-protocol"
@@ -107,13 +161,13 @@ text = "pull-request-protocol.md"
 id = "version-file-updated"
 type = "text_present"
 path = "VERSION"
-text = "0.0.15"
+text = "0.0.17"
 
 [[phases.packaging.checks]]
 id = "readme-version-updated"
 type = "text_present"
 path = "README.md"
-text = "Experimental package version: `0.0.15`"
+text = "Experimental package version: `0.0.17`"
 
 [[phases.packaging.checks]]
 id = "installer-pr-protocol-test"

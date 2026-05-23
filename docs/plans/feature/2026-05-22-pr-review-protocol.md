@@ -1,9 +1,9 @@
 # PR Review Protocol Update
 
 Status: active
-Branch: `feature/pr-review-protocol-2026-05-22`
+Branch: `main`
 Baseline: `origin/main`
-Worktree: `/home/ismael/Github/.worktrees/agent-protocols-pr-review-protocol-2026-05-22`
+Worktree: `/home/ismael/Github/agent-protocols`
 
 ## Goal
 
@@ -43,10 +43,12 @@ Exit gate: branch/worktree binding and plan artifacts pass the manifest.
 ### protocol_updates
 
 Goal: add the side-effect-focused final code review gate to the substantive and
-minor protocols, and add the invocable PR protocol.
+minor protocols, prefer a fresh independent review context when supported, and
+add the invocable PR protocol.
 
 Exit gate: both work protocols require side-effect review before PR or final
-branch checkpoint, and the PR protocol documents the required sections.
+branch checkpoint, the review gate prefers a fresh independent context when
+supported, and the PR protocol documents the required sections.
 
 ### packaging
 

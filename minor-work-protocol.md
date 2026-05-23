@@ -57,12 +57,13 @@ It does not replace:
    the same test passes. Do not make the test weak enough for incomplete or
    buggy code to pass.
 8. Before landing, opening a PR, or treating the branch's final commit as
-   complete, run a full-diff code review gate. Look especially for side
-   effects on nearby code paths, shared helpers, data contracts, runtime
-   configuration, permissions, public APIs, and user-visible workflows. If a
-   side effect is plausible, add or run the focused test or validation needed
-   to prove the risk is mitigated. Do not guess that side effects are safe
-   because the change is small.
+   complete, run a full-diff code review gate. When the toolchain supports it,
+   run that review in a fresh independent review context, preferably via a
+   subagent. Look especially for side effects on nearby code paths, shared
+   helpers, data contracts, runtime configuration, permissions, public APIs, and
+   user-visible workflows. If a side effect is plausible, add or run the focused
+   test or validation needed to prove the risk is mitigated. Do not guess that
+   side effects are safe because the change is small.
 9. After the change lands, decide whether the decision behind it is worth
    preserving in a durable record. For most minor work the answer is no; for
    some it is yes.
@@ -139,8 +140,11 @@ Closeout for minor work is:
 1. run the temp artifact cleanup gate: preserve durable content, then delete
    temporary files, lock files, scratch inventories, and placeholder examples
    that are not meant to survive
-2. run the final code review gate and resolve any side-effect risk with added
-   or rerun tests where needed
+2. run the final code review gate in a fresh independent review context when
+   the toolchain supports it, preferably via a subagent. Give the reviewer the
+   diff, relevant protocols, test evidence, and acceptance criteria, but not
+   the implementer's defensive rationale. Resolve each credible side-effect risk
+   with added or rerun tests, or record why it is not applicable
 3. ensure the change is on the integration branch and pushed when the repo
    policy expects a remote checkpoint
 4. if a PR is required, write the PR body with the
@@ -168,6 +172,16 @@ Run this gate after the focused change and required docs updates are in place,
 but before landing, opening a PR, or reporting the branch's final commit as the
 complete reviewable result.
 
+When the toolchain supports it, run the review in a fresh independent review
+context, preferably via a subagent. Give the reviewer the diff, relevant
+protocols, test evidence, and acceptance criteria, but not the implementer's
+defensive rationale. The implementing agent still owns follow-up fixes,
+validation, and final responsibility for the branch.
+
+If a fresh independent review context is unavailable, record why it is
+unavailable and perform the best available independent-style full-diff review
+before proceeding.
+
 The review must inspect the full branch diff against the starting baseline and
 ask where the small change could have side effects beyond the directly edited
 lines. For each plausible risk, prove the mitigation before proceeding:
@@ -179,8 +193,9 @@ lines. For each plausible risk, prove the mitigation before proceeding:
   record why that manual check is the right evidence
 
 If the review finds a real defect or an unproven risk, fix it and rerun the
-relevant checks before closeout. Do not proceed on "looks safe" reasoning
-alone.
+relevant checks before closeout. Resolve each credible side-effect risk with
+added or rerun tests, or record why it is not applicable. Do not proceed on
+"looks safe" reasoning alone.
 
 ## Repo-State Audit
 

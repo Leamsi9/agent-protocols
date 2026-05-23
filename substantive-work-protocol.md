@@ -59,12 +59,14 @@ use this protocol unless there is a very good reason not to.
     the same test passes. Do not weaken the test to fit incomplete or buggy
     code.
 14. Before opening a PR, merging, or treating the branch's final commit as
-    complete, run a full-diff code review gate. Look especially for side
-    effects on adjacent code paths, data contracts, runtime configuration,
-    migrations, permissions, public APIs, and user-visible workflows. If the
-    review identifies a plausible side effect, add or run the narrow automated
-    test, integration check, or documented manual validation needed to prove
-    the risk is mitigated. Do not guess that side effects are safe.
+    complete, run a full-diff code review gate. When the toolchain supports it,
+    run that review in a fresh independent review context, preferably via a
+    subagent. Look especially for side effects on adjacent code paths, data
+    contracts, runtime configuration, migrations, permissions, public APIs, and
+    user-visible workflows. If the review identifies a plausible side effect,
+    add or run the narrow automated test, integration check, or documented
+    manual validation needed to prove the risk is mitigated. Do not guess that
+    side effects are safe.
 15. For implementation work, a final `ready for review`, `complete`, or
     equivalent result requires a clean git checkpoint: `git status
     --porcelain --untracked-files=all` must be empty, `HEAD` must be ahead of
@@ -261,8 +263,11 @@ For substantive work, follow this loop every time:
     long-lived surface, then delete temporary files, lock files, scratch
     inventories, and placeholder example plans that are not meant to survive.
 17. Before opening a PR or treating the final branch commit as complete, run
-    the final code review gate and resolve any side-effect risk with added or
-    rerun tests where needed.
+    the final code review gate in a fresh independent review context when the
+    toolchain supports it, preferably via a subagent. Give the reviewer the
+    diff, relevant protocols, test evidence, and acceptance criteria, but not
+    the implementer's defensive rationale. Resolve each credible side-effect
+    risk with added or rerun tests, or record why it is not applicable.
 18. If a PR is required, write the PR body with the
     [Pull request protocol](pull-request-protocol.md).
 19. Merge only after acceptance and final-green closure.
@@ -314,6 +319,16 @@ Run this gate after implementation and required docs updates are in place, but
 before opening a PR, merging, or reporting the branch's final commit as the
 complete reviewable result.
 
+When the toolchain supports it, run the review in a fresh independent review
+context, preferably via a subagent. Give the reviewer the diff, relevant
+protocols, test evidence, and acceptance criteria, but not the implementer's
+defensive rationale. The implementing agent still owns follow-up fixes,
+validation, and final responsibility for the branch.
+
+If a fresh independent review context is unavailable, record why it is
+unavailable and perform the best available independent-style full-diff review
+before proceeding.
+
 The review must inspect the full branch diff against the recorded baseline and
 ask where the change could have side effects beyond the directly edited lines.
 Pay special attention to:
@@ -335,8 +350,9 @@ For each plausible risk, prove the mitigation before proceeding:
   record why that manual check is the right evidence
 
 If the review finds a real defect or an unproven risk, return to the relevant
-implementation phase. Do not proceed to PR, merge, or final branch checkpoint
-on "looks safe" reasoning alone.
+implementation phase. Resolve each credible side-effect risk with added or
+rerun tests, or record why it is not applicable. Do not proceed to PR, merge, or
+final branch checkpoint on "looks safe" reasoning alone.
 
 ## Final Git Checkpoint
 
