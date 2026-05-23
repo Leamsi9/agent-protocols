@@ -51,7 +51,15 @@ For git/worktree cleanup, prefer `agent-protocols/scripts/repo_state.py` before 
 ## Bootstrap Help
 
 The package installer can vendor the package, create the config file, and
-scaffold the docs skeleton for a repo:
+scaffold the docs skeleton for a repo. After scaffolding it also reports
+whether common assistant instruction files already point at the vendored
+protocols:
+
+- `assistant entrypoint wiring: ok` means future agents should discover the
+  package through an existing instruction surface.
+- `assistant entrypoint wiring: action needed` means the package was installed,
+  but the target repo still needs `AGENTS.md`, `CLAUDE.md`, or an equivalent
+  assistant entrypoint to reference the protocols.
 
 ```bash
 cd /path/to/target-repo

@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.15`
+Experimental package version: `0.0.16`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream
@@ -72,7 +72,8 @@ After the installer runs:
 
 1. review `agent-protocols.toml`
 2. review or refresh repo docs that point to the protocol
-3. use `--print-adoption-prompt` if you want a coding assistant to finish the
+3. check the printed assistant entrypoint wiring status
+4. use `--print-adoption-prompt` if you want a coding assistant to finish the
    repo-specific wiring
 
 The installer copies the package into the target repo as `agent-protocols/`.
@@ -87,6 +88,8 @@ python3 ~/src/agent-protocols/scripts/install.py --yes
 
 That refreshes the vendored package files and creates any newly introduced
 scaffold files that are still missing, such as `docs/temp/README.md`.
+The installer also reports whether common assistant instruction files such as
+`AGENTS.md` or `CLAUDE.md` already point at the vendored protocols.
 
 ## Quick Start Patterns
 
@@ -221,6 +224,10 @@ Installer behavior:
   repos in the surrounding workspace and asks for confirmation.
 - If you reject the detected plan, it prompts for the repo path, repo id,
   branch, and linked repo entries.
+- After scaffolding, it prints `assistant entrypoint wiring: ok` when a common
+  assistant instruction file already references the vendored protocols, or
+  `assistant entrypoint wiring: action needed` with next steps when no such
+  reference is found.
 - Use `--yes` for automation.
 - Use `--skip-workspace-discovery` when you want a strictly single-repo
   install.

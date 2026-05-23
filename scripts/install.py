@@ -14,6 +14,13 @@ from pathlib import Path
 
 DEFAULT_LEDGER_PATH = Path("docs/live-workstream-status.md")
 LOCAL_OVERLAY_README_PATH = Path("local/README.md")
+ASSISTANT_ENTRYPOINTS = [
+    Path("AGENTS.md"),
+    Path("CLAUDE.md"),
+    Path(".cursorrules"),
+    Path(".cursor/rules"),
+    Path(".github/copilot-instructions.md"),
+]
 VENDORED_FILES = [
     "README.md",
     "VERSION",
@@ -741,6 +748,56 @@ def print_assistant_snippets() -> None:
     print(snippet)
 
 
+def assistant_entrypoint_status(target: Path, vendor_dir: str) -> tuple[str, list[Path]]:
+    references: list[Path] = []
+    protocol_markers = [
+        f"{vendor_dir}/substantive-work-protocol.md",
+        f"{vendor_dir}/minor-work-protocol.md",
+        f"{vendor_dir}/temp-doc-protocol.md",
+    ]
+    for relative in ASSISTANT_ENTRYPOINTS:
+        path = target / relative
+        if path.is_dir():
+            for child in sorted(path.rglob("*.md")):
+                try:
+                    content = child.read_text(encoding="utf-8")
+                except UnicodeDecodeError:
+                    continue
+                if any(marker in content for marker in protocol_markers):
+                    references.append(child.relative_to(target))
+        elif path.is_file():
+            try:
+                content = path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                continue
+            if any(marker in content for marker in protocol_markers):
+                references.append(relative)
+    status = "ok" if references else "action_needed"
+    return status, references
+
+
+def print_assistant_entrypoint_report(target: Path, vendor_dir: str) -> None:
+    status, references = assistant_entrypoint_status(target=target, vendor_dir=vendor_dir)
+    if status == "ok":
+        rendered = ", ".join(path.as_posix() for path in references)
+        print(f"assistant entrypoint wiring: ok ({rendered})")
+        return
+
+    print("assistant entrypoint wiring: action needed")
+    print(
+        "  No common assistant instruction file currently points at "
+        f"`{vendor_dir}/substantive-work-protocol.md`."
+    )
+    print(
+        "  Update AGENTS.md, CLAUDE.md, or the repo's equivalent assistant "
+        "entrypoint so future agents know to use the protocols."
+    )
+    print(
+        "  Run again with `--print-assistant-snippets` or "
+        "`--print-adoption-prompt` for copy-paste guidance."
+    )
+
+
 def render_adoption_prompt(repo_id: str, main_branch: str, vendor_dir: str) -> str:
     template = (package_root() / "assistant-adoption-prompt.md").read_text(
         encoding="utf-8"
@@ -776,6 +833,7 @@ def main() -> int:
         print(f"install aborted: {error}", file=sys.stderr)
         return 2
     print(f"scaffolded agent-protocols integration in {plan.target}")
+    print_assistant_entrypoint_report(target=plan.target, vendor_dir=args.vendor_dir)
     if args.print_assistant_snippets:
         print()
         print_assistant_snippets()

@@ -221,6 +221,48 @@ class RepoStateTests(unittest.TestCase):
             self.assertIn("## Risks and Mitigations", content)
             self.assertIn("## Tests", content)
 
+    def test_installer_reports_missing_assistant_entrypoint_wiring(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_temp:
+            target = Path(raw_temp) / "consumer"
+            target.mkdir()
+            result = run_ok(
+                [
+                    "python3",
+                    str(INSTALLER),
+                    "--target",
+                    str(target),
+                    "--repo-id",
+                    "consumer",
+                    "--yes",
+                    "--skip-workspace-discovery",
+                ]
+            )
+            self.assertIn("assistant entrypoint wiring: action needed", result.stdout)
+            self.assertIn("agent-protocols/substantive-work-protocol.md", result.stdout)
+
+    def test_installer_reports_existing_assistant_entrypoint_wiring(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_temp:
+            target = Path(raw_temp) / "consumer"
+            target.mkdir()
+            (target / "AGENTS.md").write_text(
+                "For substantive work, follow "
+                "`agent-protocols/substantive-work-protocol.md`.\n",
+                encoding="utf-8",
+            )
+            result = run_ok(
+                [
+                    "python3",
+                    str(INSTALLER),
+                    "--target",
+                    str(target),
+                    "--repo-id",
+                    "consumer",
+                    "--yes",
+                    "--skip-workspace-discovery",
+                ]
+            )
+            self.assertIn("assistant entrypoint wiring: ok (AGENTS.md)", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
