@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.17`
+Experimental package version: `0.0.18`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream
@@ -90,6 +90,21 @@ That refreshes the vendored package files and creates any newly introduced
 scaffold files that are still missing, such as `docs/temp/README.md`.
 The installer also reports whether common assistant instruction files such as
 `AGENTS.md` or `CLAUDE.md` already point at the vendored protocols.
+
+Default refresh closeout is controlled by the consumer repo, not by this
+package. After refreshing a vendored copy:
+
+- keep the refresh diff limited to `agent-protocols/` plus intentional
+  package-scaffold files
+- do not auto-push or auto-merge the refresh solely because the package changed
+- if the active checkout is dirty, on a feature branch, or part of ongoing
+  implementation work, use a clean worktree or dedicated refresh branch instead
+  of mixing the protocol bump into unrelated work
+- promote the refresh with the consumer repo's normal branch, review, CI, and
+  merge rules; direct pushes to `main` still require that repo's explicit
+  policy or operator approval
+- if unrelated source, product, deployment, or docs changes are needed, split
+  them into a normal workstream and use the merge-to-main protocol
 
 ## Quick Start Patterns
 

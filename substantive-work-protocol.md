@@ -354,6 +354,35 @@ implementation phase. Resolve each credible side-effect risk with added or
 rerun tests, or record why it is not applicable. Do not proceed to PR, merge, or
 final branch checkpoint on "looks safe" reasoning alone.
 
+After review feedback has been addressed, decide whether another independent
+review pass is necessary before final checkpoint. Ask the operator for approval
+before spending another review round unless the repo policy, user instruction,
+or current task contract already requires it.
+
+Run another review when any of these are true:
+
+- review implementation changed production code, public contracts, schemas,
+  migrations, auth/security/billing/privacy boundaries, deployment/runtime
+  config, scheduled jobs, or background workers
+- the fix touched files outside the originally reviewed diff or materially
+  increased the diff size or scope
+- the first review found a high-severity defect, multiple credible side-effect
+  risks, or a systemic test gap
+- acceptance criteria changed, or failing checks required non-trivial fixes
+- meaningful uncertainty remains about correctness, security, data integrity, or
+  user-visible behavior
+
+It is usually good enough to stop without another review when all of these are
+true:
+
+- review feedback was resolved with small local edits, docs clarification, test
+  evidence, or rerun checks only
+- no new production behavior, public contract, storage shape, security boundary,
+  deployment wiring, or user-visible flow changed after the review
+- targeted tests, phase gates, and required manual validations are green
+- remaining risks are documented as mitigated, accepted, or not applicable
+- another review would mainly reread an unchanged diff
+
 ## Final Git Checkpoint
 
 Before reporting implementation work as `ready for review`, `complete`,

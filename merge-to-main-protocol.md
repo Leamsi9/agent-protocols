@@ -10,6 +10,15 @@ Agents must not push directly to `main`.
 All substantive or production-affecting changes must be promoted to `main` by a
 GitHub pull request, even when the agent is asked to create and accept the PR.
 
+Vendored `agent-protocols/` refreshes are package-maintenance changes, but they
+are not an exception to the consumer repo's branch, review, CI, or merge rules.
+Do not auto-push or auto-merge a vendored refresh solely because the package
+changed. Keep the diff limited to the vendored package and intentional package
+scaffold files. If the diff touches product/runtime source, secrets, deployment
+behavior, or unrelated docs, split that work out and use the pull-request flow
+below. Direct pushes to `main` still require the consumer repo's explicit
+policy or operator approval.
+
 ## Required Flow
 
 1. Start from a clean branch or worktree based on current `origin/main`.

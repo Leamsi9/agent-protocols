@@ -71,6 +71,12 @@ path = "substantive-work-protocol.md"
 text = "independent-style full-diff review"
 
 [[phases.protocol_updates.checks]]
+id = "substantive-review-loop-criteria"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "another review would mainly reread an unchanged diff"
+
+[[phases.protocol_updates.checks]]
 id = "minor-review-gate"
 type = "text_present"
 path = "minor-work-protocol.md"
@@ -107,6 +113,12 @@ path = "minor-work-protocol.md"
 text = "independent-style full-diff review"
 
 [[phases.protocol_updates.checks]]
+id = "minor-review-loop-criteria"
+type = "text_present"
+path = "minor-work-protocol.md"
+text = "another review would mainly reread an unchanged diff"
+
+[[phases.protocol_updates.checks]]
 id = "pr-protocol-exists"
 type = "path_exists"
 path = "pull-request-protocol.md"
@@ -136,10 +148,34 @@ path = "pull-request-protocol.md"
 text = "independent-style full-diff review"
 
 [[phases.protocol_updates.checks]]
+id = "pr-protocol-review-loop-criteria"
+type = "text_present"
+path = "pull-request-protocol.md"
+text = "another review would mainly reread an unchanged diff"
+
+[[phases.protocol_updates.checks]]
 id = "merge-protocol-invokes-pr-protocol"
 type = "text_present"
 path = "merge-to-main-protocol.md"
 text = "[Pull request protocol](pull-request-protocol.md)"
+
+[[phases.protocol_updates.checks]]
+id = "merge-protocol-vendor-refresh-consumer-controlled"
+type = "text_present"
+path = "merge-to-main-protocol.md"
+text = "Vendored `agent-protocols/` refreshes are package-maintenance changes"
+
+[[phases.protocol_updates.checks]]
+id = "merge-protocol-vendor-refresh-no-exception"
+type = "text_present"
+path = "merge-to-main-protocol.md"
+text = "not an exception to the consumer repo's branch, review, CI, or merge rules"
+
+[[phases.protocol_updates.checks]]
+id = "merge-protocol-vendor-refresh-no-auto-push"
+type = "text_present"
+path = "merge-to-main-protocol.md"
+text = "Do not auto-push or auto-merge"
 
 [phases.packaging]
 summary = "Wire the PR protocol into vendoring and package docs."
@@ -161,13 +197,43 @@ text = "pull-request-protocol.md"
 id = "version-file-updated"
 type = "text_present"
 path = "VERSION"
-text = "0.0.17"
+text = "0.0.18"
 
 [[phases.packaging.checks]]
 id = "readme-version-updated"
 type = "text_present"
 path = "README.md"
-text = "Experimental package version: `0.0.17`"
+text = "Experimental package version: `0.0.18`"
+
+[[phases.packaging.checks]]
+id = "readme-vendor-refresh-consumer-controlled"
+type = "text_present"
+path = "README.md"
+text = "Default refresh closeout is controlled by the consumer repo"
+
+[[phases.packaging.checks]]
+id = "readme-vendor-refresh-no-auto-push"
+type = "text_present"
+path = "README.md"
+text = "do not auto-push or auto-merge"
+
+[[phases.packaging.checks]]
+id = "syncing-vendor-refresh-consumer-controlled"
+type = "text_present"
+path = "SYNCING.md"
+text = "Vendored package refresh closeout belongs to the consumer repo"
+
+[[phases.packaging.checks]]
+id = "syncing-vendor-refresh-no-auto-push"
+type = "text_present"
+path = "SYNCING.md"
+text = "does not make a refresh eligible for automatic `main` pushes"
+
+[[phases.packaging.checks]]
+id = "merge-protocol-check-guards-no-auto-push"
+type = "text_present"
+path = "scripts/check_merge_to_main_protocol.py"
+text = "Do not auto-push or auto-merge"
 
 [[phases.packaging.checks]]
 id = "installer-pr-protocol-test"

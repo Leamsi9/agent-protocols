@@ -15,6 +15,8 @@ LEGACY_LOCAL_MAIN_PROTOCOL = "local-main-merge-protocol.md"
 MERGE_REQUIRED_SNIPPETS = (
     "Agents must not push directly to `main`.",
     "GitHub pull request",
+    "not an exception to the consumer repo's branch, review, CI, or merge rules",
+    "Do not auto-push or auto-merge",
     "full `headRefOid`",
     "Verify the post-merge `main` workflow",
     "Emergency Exception",

@@ -27,6 +27,16 @@ Before writing the PR body:
    risk is testable. If automation is not practical or the risk is not
    applicable, record the narrow manual validation or the reason no extra
    validation applies.
+5. After review feedback has been addressed, decide whether another independent
+   review pass is necessary. Ask the operator for approval before spending
+   another review round unless the repo policy, user instruction, or current
+   task contract already requires it. Another review is usually warranted when
+   review implementation changed production behavior, public contracts, storage,
+   security, deployment wiring, or user-visible flows; when the fix materially
+   expanded the diff; when the first review found high-severity or systemic
+   issues; or when meaningful uncertainty remains. It is usually good enough to
+   stop when fixes were small/local, required checks are green, risks are
+   documented, and another review would mainly reread an unchanged diff.
 
 Do not use a PR description to smooth over untested side-effect risk. If a risk
 is plausible and testable, test it before asking for review.

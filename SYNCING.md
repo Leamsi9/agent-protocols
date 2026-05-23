@@ -57,6 +57,16 @@ That refreshes the vendored package files and fills in newly added missing
 scaffold files without requiring a nested package clone inside the consumer
 repo.
 
+Vendored package refresh closeout belongs to the consumer repo. The package
+does not make a refresh eligible for automatic `main` pushes or automatic
+merges. Use a clean worktree or dedicated refresh branch when the normal
+checkout is dirty or branch-owned, commit only the vendored package update and
+intentional package scaffold files, and promote the refresh with the consumer
+repo's normal branch, review, CI, and merge rules. Direct pushes to `main`
+still require that repo's explicit policy or operator approval. If the refresh
+needs unrelated product/source changes, split those into their own branch and
+follow the normal merge-to-main protocol.
+
 ## Minimal Consumer Contract
 
 Each consumer should document:
