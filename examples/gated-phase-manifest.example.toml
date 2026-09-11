@@ -32,6 +32,7 @@ id = "branch-worktree-bound"
 type = "git_branch_worktree"
 repo = "."
 branch = "feature/example-workstream"
+current = true
 # Add `path = "/absolute/worktree/path"` when the exact checkout path matters.
 # Add `contains = "products/leam"` when runtime tooling needs that surface.
 
@@ -58,6 +59,7 @@ repo = "."
 id = "branch-worktree-bound"
 type = "git_branch_worktree"
 repo = "."
+current = true
 
 [[phases.implementation.checks]]
 id = "old-authoritative-surface-gone"

@@ -34,7 +34,11 @@ use this protocol unless there is a very good reason not to.
 3. Every substantive branch should have its own dedicated worktree. Do not
    implement multiple active substantive streams in the same checkout. Record
    the branch/worktree binding in the plan manifest and prove it with
-   `git_branch_worktree` before treating the branch as runnable or ready.
+   `git_branch_worktree` before treating the branch as runnable or ready. Set
+   `current = true` when the gate is supposed to validate the checkout from
+   which the phase checker is running; registration of the right branch in a
+   different worktree is inventory evidence, not proof that the current source
+   is the reviewed source.
 4. If the work spans repos, create a matching branch pair and keep each repo in
    its own worktree.
 5. Break the work into an ordered sequence of gated mini-plans instead of one
@@ -104,6 +108,13 @@ behavioral claim only when the requested scope has reached **Behavior
 accepted**. Before then, report the exact attained state, such as "published,
 not deployed" or "deployed and operational; authenticated acceptance
 outstanding."
+
+Static document checks such as `text_present`, `text_absent`, `path_exists`, or
+`regex_present` can prove only properties of that local document or tree. They
+must not be used as deployment, runtime-health, external-state, or behavioral
+acceptance evidence. For those gates, run a command that queries the current
+authoritative system and compares immutable identity; fail when credentials or
+the authoritative system are unavailable.
 
 For user-visible or cross-service changes:
 
@@ -503,6 +514,7 @@ repo = "."
 id = "branch-worktree-bound"
 type = "git_branch_worktree"
 repo = "."
+current = true
 ```
 
 ## Browser And Mobile Verification
@@ -677,6 +689,12 @@ Supported check types:
 - `git_branch_worktree`
 - `worktree_absent`
 
+`git_branch_worktree` accepts optional `current = true`. Use it for active
+implementation, validation, and pre-merge closeout gates so a checker invoked
+from a sibling checkout cannot receive a false green merely because the
+intended branch is registered elsewhere. Leave it false only for deliberate
+cross-worktree inventory checks.
+
 ## Branch Rule
 
 This rule is mandatory for substantive work:
@@ -692,7 +710,8 @@ This rule is mandatory for substantive work:
   that already mixes multiple streams
 - add a manifest `git_branch_worktree` check that names the branch, and add a
   `path` or product-surface `contains` assertion when the branch must be
-  runnable by repo tooling
+  runnable by repo tooling; set `current = true` for gates executed from that
+  implementation checkout
 - if the work spans repos, create a matching branch pair
 - keep a stable integration worktree available for bootstrap paths, pulls,
   merges, pushes, and reconciliation

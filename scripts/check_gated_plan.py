@@ -357,6 +357,28 @@ def run_check(
                     f"{branch_ref} registered at {worktree}, expected {expected}",
                 )
 
+        current_required = raw_check.get("current", False)
+        if not isinstance(current_required, bool):
+            return CheckResult(
+                check_id,
+                check_type,
+                False,
+                "current must be a boolean",
+            )
+        if current_required:
+            current_result = run_git(["rev-parse", "--show-toplevel"], repo_dir)
+            if current_result.returncode != 0:
+                detail = current_result.stderr.strip() or "failed to resolve current checkout"
+                return CheckResult(check_id, check_type, False, detail)
+            current_worktree = Path(current_result.stdout.strip()).resolve()
+            if current_worktree != worktree:
+                return CheckResult(
+                    check_id,
+                    check_type,
+                    False,
+                    f"current checkout is {current_worktree}, expected {worktree}",
+                )
+
         contains = str(raw_check.get("contains", "")).strip()
         if contains:
             contained_path = (worktree / contains).resolve()
