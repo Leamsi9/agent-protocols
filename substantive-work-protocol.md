@@ -75,6 +75,51 @@ use this protocol unless there is a very good reason not to.
     A dirty worktree at final response is a failed gate, not a degraded
     completion.
 
+## Behavioral Acceptance And Green Revocation
+
+Keep these evidence states separate. Passing one state does not imply any later
+state:
+
+1. **Implementation verified**: source-level tests and review pass.
+2. **Artifact published**: the intended commit was packaged and is available.
+3. **Deployment applied**: the live runtime resolves to the intended immutable
+   artifact. For mutable or semantic image tags, compare the tag's current
+   registry digest with the runtime's resolved digest.
+4. **Runtime operational**: infrastructure health and basic smoke checks pass.
+5. **Behavior accepted**: the requested behavior passes through the actual
+   user or service path at the highest practical boundary.
+
+Use `fixed`, `working`, `healthy`, `complete`, or an equivalent unqualified
+behavioral claim only when the requested scope has reached **Behavior
+accepted**. Before then, report the exact attained state, such as "published,
+not deployed" or "deployed and operational; authenticated acceptance
+outstanding."
+
+For user-visible or cross-service changes:
+
+- Trace every acceptance fixture to the canonical contract shape used by the
+  real consumer. Prefer a captured, sanitized production-like response or an
+  established canonical fixture, and record its provenance. An invented
+  helper fixture must not be the sole promotion gate.
+- Exercise the actual consumer component, route, command, or service seam.
+  Array order, coordinate arithmetic, mocked adapters, and helper-unit tests
+  are supporting evidence; they do not alone prove the rendered page or
+  cross-service workflow.
+- If authentication, external state, specialized hardware, or another boundary
+  makes final acceptance manual, encode that manual acceptance boundary in the
+  plan and keep behavioral status pending until it is explicitly satisfied.
+- For deployments selected by a mutable tag, **Runtime identity** requires both
+  the selected tag-to-digest resolution and the live runtime-to-digest
+  resolution. A successful update status without digest equality is not a
+  deployment green.
+
+Any credible reproduction that contradicts an accepted result immediately
+revokes the prior behavioral green. Mark the affected gate red, preserve the
+reproduction as a failing test at the real boundary when practical, identify
+why the earlier evidence missed it, and rerun every downstream gate after the
+correction. Do not dismiss the contradiction as cache, environment, or user
+error without direct evidence.
+
 ## Lifecycle States
 
 Use these meanings consistently:
