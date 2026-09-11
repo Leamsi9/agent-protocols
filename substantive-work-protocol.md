@@ -34,7 +34,11 @@ use this protocol unless there is a very good reason not to.
 3. Every substantive branch should have its own dedicated worktree. Do not
    implement multiple active substantive streams in the same checkout. Record
    the branch/worktree binding in the plan manifest and prove it with
-   `git_branch_worktree` before treating the branch as runnable or ready.
+   `git_branch_worktree` before treating the branch as runnable or ready. Set
+   `current = true` when the gate is supposed to validate the checkout from
+   which the phase checker is running; registration of the right branch in a
+   different worktree is inventory evidence, not proof that the current source
+   is the reviewed source.
 4. If the work spans repos, create a matching branch pair and keep each repo in
    its own worktree.
 5. Break the work into an ordered sequence of gated mini-plans instead of one
@@ -105,6 +109,16 @@ accepted**. Before then, report the exact attained state, such as "published,
 not deployed" or "deployed and operational; authenticated acceptance
 outstanding."
 
+Static document checks such as `text_present`, `text_absent`, `path_exists`, or
+`regex_present` can prove only properties of that local document or tree. They
+must not be used as deployment, runtime-health, external-state, or behavioral
+acceptance evidence. For those gates, run a command that queries the current
+authoritative system and compares immutable identity; fail when credentials or
+the authoritative system are unavailable. Wrapping a static file, hard-coded
+success value, or cached response in a `command` check does not make it live
+evidence. A live command must fail on unavailable or mismatched authoritative
+state and report the identities and timestamps it actually compared.
+
 For user-visible or cross-service changes:
 
 - Trace every acceptance fixture to the canonical contract shape used by the
@@ -118,6 +132,15 @@ For user-visible or cross-service changes:
 - If authentication, external state, specialized hardware, or another boundary
   makes final acceptance manual, encode that manual acceptance boundary in the
   plan and keep behavioral status pending until it is explicitly satisfied.
+- Behavioral evidence must be captured after the currently selected artifact
+  reached the real runtime. Record the immutable runtime fingerprint, the
+  deployment time, the separate browser or service session-start time, the
+  observation time, and the record-update time. Require the session to start
+  strictly after the latest deployment change, and require session start,
+  observation, then record update in that order. Reject equality at the
+  deployment boundary because it cannot prove the new runtime was available.
+  For browser checks, start a new session or force a full reload and record the
+  client build identity when the application exposes one.
 - For deployments selected by a mutable tag, **Runtime identity** requires both
   the selected tag-to-digest resolution and the live runtime-to-digest
   resolution. A successful update status without digest equality is not a
@@ -125,6 +148,11 @@ For user-visible or cross-service changes:
   mutable tag moves after identity or behavior was accepted, that movement
   revokes **Deployment applied** and every downstream state until digest
   equality and the affected downstream gates are established again.
+- When the artifact format exposes source provenance, compare its embedded
+  source revision with the intended commit rather than trusting catalog text or
+  a tag alone. For behavior exercised through a public URL, also prove the
+  current domain, route, and integration resolve to the inspected runtime; a
+  healthy unreferenced function is not user-path deployment evidence.
 
 Any credible reproduction that contradicts an accepted result immediately
 revokes the prior behavioral green. Mark the affected gate red, preserve the
@@ -503,6 +531,7 @@ repo = "."
 id = "branch-worktree-bound"
 type = "git_branch_worktree"
 repo = "."
+current = true
 ```
 
 ## Browser And Mobile Verification
@@ -677,6 +706,12 @@ Supported check types:
 - `git_branch_worktree`
 - `worktree_absent`
 
+`git_branch_worktree` accepts optional `current = true`. Use it for active
+implementation, validation, and pre-merge closeout gates so a checker invoked
+from a sibling checkout cannot receive a false green merely because the
+intended branch is registered elsewhere. Leave it false only for deliberate
+cross-worktree inventory checks.
+
 ## Branch Rule
 
 This rule is mandatory for substantive work:
@@ -692,7 +727,8 @@ This rule is mandatory for substantive work:
   that already mixes multiple streams
 - add a manifest `git_branch_worktree` check that names the branch, and add a
   `path` or product-surface `contains` assertion when the branch must be
-  runnable by repo tooling
+  runnable by repo tooling; set `current = true` for gates executed from that
+  implementation checkout
 - if the work spans repos, create a matching branch pair
 - keep a stable integration worktree available for bootstrap paths, pulls,
   merges, pushes, and reconciliation
