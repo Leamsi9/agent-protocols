@@ -114,7 +114,10 @@ Static document checks such as `text_present`, `text_absent`, `path_exists`, or
 must not be used as deployment, runtime-health, external-state, or behavioral
 acceptance evidence. For those gates, run a command that queries the current
 authoritative system and compares immutable identity; fail when credentials or
-the authoritative system are unavailable.
+the authoritative system are unavailable. Wrapping a static file, hard-coded
+success value, or cached response in a `command` check does not make it live
+evidence. A live command must fail on unavailable or mismatched authoritative
+state and report the identities and timestamps it actually compared.
 
 For user-visible or cross-service changes:
 
@@ -131,9 +134,12 @@ For user-visible or cross-service changes:
   plan and keep behavioral status pending until it is explicitly satisfied.
 - Behavioral evidence must be captured after the currently selected artifact
   reached the real runtime. Record the immutable runtime fingerprint, the
-  deployment time, and the observation time; reject a result from an older
-  deployment or from a browser session that loaded before the deployment. For
-  browser checks, start a new session or force a full reload and record the
+  deployment time, the separate browser or service session-start time, the
+  observation time, and the record-update time. Require the session to start
+  strictly after the latest deployment change, and require session start,
+  observation, then record update in that order. Reject equality at the
+  deployment boundary because it cannot prove the new runtime was available.
+  For browser checks, start a new session or force a full reload and record the
   client build identity when the application exposes one.
 - For deployments selected by a mutable tag, **Runtime identity** requires both
   the selected tag-to-digest resolution and the live runtime-to-digest
@@ -142,6 +148,11 @@ For user-visible or cross-service changes:
   mutable tag moves after identity or behavior was accepted, that movement
   revokes **Deployment applied** and every downstream state until digest
   equality and the affected downstream gates are established again.
+- When the artifact format exposes source provenance, compare its embedded
+  source revision with the intended commit rather than trusting catalog text or
+  a tag alone. For behavior exercised through a public URL, also prove the
+  current domain, route, and integration resolve to the inspected runtime; a
+  healthy unreferenced function is not user-path deployment evidence.
 
 Any credible reproduction that contradicts an accepted result immediately
 revokes the prior behavioral green. Mark the affected gate red, preserve the
