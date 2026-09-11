@@ -129,6 +129,12 @@ For user-visible or cross-service changes:
 - If authentication, external state, specialized hardware, or another boundary
   makes final acceptance manual, encode that manual acceptance boundary in the
   plan and keep behavioral status pending until it is explicitly satisfied.
+- Behavioral evidence must be captured after the currently selected artifact
+  reached the real runtime. Record the immutable runtime fingerprint, the
+  deployment time, and the observation time; reject a result from an older
+  deployment or from a browser session that loaded before the deployment. For
+  browser checks, start a new session or force a full reload and record the
+  client build identity when the application exposes one.
 - For deployments selected by a mutable tag, **Runtime identity** requires both
   the selected tag-to-digest resolution and the live runtime-to-digest
   resolution. A successful update status without digest equality is not a
