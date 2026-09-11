@@ -1,0 +1,77 @@
+title = "Behavioral acceptance and false-green gates"
+branch = "fix/behavioral-acceptance-gates-2026-09-11"
+baseline = "origin/main"
+root_dir = "../../.."
+phase_order = ["branch_setup", "protocol_update", "validation"]
+
+[phases.branch_setup]
+summary = "Create the dedicated worktree and durable plan family."
+
+[[phases.branch_setup.checks]]
+id = "plan-exists"
+type = "path_exists"
+path = "docs/plans/hotfix/2026-09-11-behavioral-acceptance-gates.md"
+
+[[phases.branch_setup.checks]]
+id = "manifest-exists"
+type = "path_exists"
+path = "docs/plans/hotfix/2026-09-11-behavioral-acceptance-gates.plan.toml"
+
+[[phases.branch_setup.checks]]
+id = "worktree-bound"
+type = "git_branch_worktree"
+repo = "."
+branch = "fix/behavioral-acceptance-gates-2026-09-11"
+
+[phases.protocol_update]
+summary = "Add fail-closed behavioral acceptance and green-revocation rules."
+depends_on = ["branch_setup"]
+
+[[phases.protocol_update.checks]]
+id = "user-reproduction-revokes-green"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "revokes the prior behavioral green"
+
+[[phases.protocol_update.checks]]
+id = "evidence-layers-distinct"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "Runtime identity"
+
+[[phases.protocol_update.checks]]
+id = "canonical-fixture-gate"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "canonical contract shape"
+
+[[phases.protocol_update.checks]]
+id = "manual-boundary-gate"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "manual acceptance boundary"
+
+[phases.validation]
+summary = "Validate and independently review the canonical protocol change."
+depends_on = ["protocol_update"]
+
+[[phases.validation.checks]]
+id = "protocol-tool-tests"
+type = "command"
+command = "python3 -m unittest discover -s tests -p 'test_*.py'"
+
+[[phases.validation.checks]]
+id = "repo-clean"
+type = "git_clean"
+repo = "."
+
+[[phases.validation.checks]]
+id = "head-ahead"
+type = "git_head_ahead"
+repo = "."
+
+[[phases.validation.checks]]
+id = "branch-bound"
+type = "git_branch_worktree"
+repo = "."
+branch = "fix/behavioral-acceptance-gates-2026-09-11"

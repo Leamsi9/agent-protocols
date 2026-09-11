@@ -44,7 +44,10 @@ use this protocol unless there is a very good reason not to.
 8. Do not call work complete from narrative judgement alone. Completion must be
    backed by the phase checker and the documented gate.
 9. Merge to the repo’s primary integration branch only after acceptance and
-   final-green closure.
+   final-green closure unless the documented deployment topology can create the
+   acceptance artifact only from that integration branch. In that case, follow
+   the controlled integration rollout below and keep the result unaccepted
+   until the post-merge gates pass.
 10. Treat live git and worktree state as authoritative. Durable docs should
    mirror that state, not override it.
 11. Proposal-only slices need only the durable artifacts that will still be
@@ -74,6 +77,79 @@ use this protocol unless there is a very good reason not to.
     include branch, commit, pushed: yes/no, and worktree_clean: true/false.
     A dirty worktree at final response is a failed gate, not a degraded
     completion.
+
+## Behavioral Acceptance And Green Revocation
+
+Keep these evidence states separate. Passing one state does not imply any later
+state:
+
+1. **Implementation verified**: source-level tests and review pass.
+2. **Artifact published**: the intended commit was packaged and is available.
+3. **Deployment applied**: the live runtime resolves to the intended immutable
+   artifact. For mutable or semantic image tags, compare the tag's current
+   registry digest with the runtime's resolved digest.
+4. **Runtime operational**: infrastructure health and basic smoke checks pass.
+5. **Behavior accepted**: the requested behavior passes through the actual
+   user or service path at the highest practical boundary.
+
+Treat this as an ordered, cumulative ladder for every runtime surface in the
+requested scope. A later state cannot be green while an earlier applicable
+state is pending, red, or unknown. Mark a state not applicable only with a
+recorded reason, such as a documentation-only change with no published or
+deployed artifact; a runtime change cannot skip artifact or deployment
+identity as not applicable.
+
+Use `fixed`, `working`, `healthy`, `complete`, or an equivalent unqualified
+behavioral claim only when the requested scope has reached **Behavior
+accepted**. Before then, report the exact attained state, such as "published,
+not deployed" or "deployed and operational; authenticated acceptance
+outstanding."
+
+For user-visible or cross-service changes:
+
+- Trace every acceptance fixture to the canonical contract shape used by the
+  real consumer. Prefer a captured, sanitized production-like response or an
+  established canonical fixture, and record its provenance. An invented
+  helper fixture must not be the sole promotion gate.
+- Exercise the actual consumer component, route, command, or service seam.
+  Array order, coordinate arithmetic, mocked adapters, and helper-unit tests
+  are supporting evidence; they do not alone prove the rendered page or
+  cross-service workflow.
+- If authentication, external state, specialized hardware, or another boundary
+  makes final acceptance manual, encode that manual acceptance boundary in the
+  plan and keep behavioral status pending until it is explicitly satisfied.
+- For deployments selected by a mutable tag, **Runtime identity** requires both
+  the selected tag-to-digest resolution and the live runtime-to-digest
+  resolution. A successful update status without digest equality is not a
+  deployment green. Tie behavior evidence to that proven live identity. If the
+  mutable tag moves after identity or behavior was accepted, that movement
+  revokes **Deployment applied** and every downstream state until digest
+  equality and the affected downstream gates are established again.
+
+Any credible reproduction that contradicts an accepted result immediately
+revokes the prior behavioral green. Mark the affected gate red, preserve the
+reproduction as a failing test at the real boundary when practical, identify
+why the earlier evidence missed it, and rerun every downstream gate after the
+correction. Do not dismiss the contradiction as cache, environment, or user
+error without direct evidence.
+
+### Non-circular deployment topology
+
+Before implementation, record how the intended artifact can reach the highest
+practical acceptance boundary. Prefer a preview, staging, test, canary, or
+other reversible pre-merge deployment when the repository supports one.
+
+If repository automation can build or deploy the real acceptance artifact only
+from the primary integration branch, a merge may be used as a **controlled
+integration rollout** after the required operator and repository approvals.
+That merge is a deployment prerequisite; it does not prove acceptance or
+completion. Keep deployment identity, runtime operation, behavior acceptance,
+and overall completion pending until the exact merged artifact is deployed and
+the cumulative gates pass. Record the rollback or revert path before merging,
+and use it if post-merge acceptance fails.
+
+Do not weaken the consumer boundary, substitute helper-level evidence, or call
+the work complete merely to avoid a required post-merge check.
 
 ## Lifecycle States
 
@@ -270,7 +346,9 @@ For substantive work, follow this loop every time:
     risk with added or rerun tests, or record why it is not applicable.
 18. If a PR is required, write the PR body with the
     [Pull request protocol](pull-request-protocol.md).
-19. Merge only after acceptance and final-green closure.
+19. Merge only after acceptance and final-green closure, or use the documented
+    controlled integration rollout when the real acceptance artifact cannot
+    exist before an integration merge.
 
 ## Repo-State Audit
 
@@ -627,13 +705,18 @@ The intended lifecycle is:
 
 1. branch from the integration baseline
 2. implement behind gated phases
-3. accept the work
-4. merge back to the integration baseline
+3. run every acceptance gate available before integration
+4. either accept a reversible pre-merge deployment and merge back to the
+   integration baseline, or invoke the documented controlled integration
+   rollout when the acceptance artifact can only be created after merge
 5. push the promoted result until the branch outcome is present on `origin/main`
    when the repo policy expects a remote checkpoint
-6. once the promoted result is on `origin/main`, remove the branch worktree and
-   delete the local branch unless it is explicitly preserved
-7. if future work is needed, branch again from `main` or from the merge commit
+6. when controlled integration rollout is required, deploy the exact merged
+   artifact, prove cumulative deployment identity through behavior acceptance,
+   and revert or roll back through repository controls if those gates fail
+7. only after the applicable acceptance gates pass, report the work complete
+   and remove the branch worktree and local branch unless explicitly preserved
+8. if future work is needed, branch again from `main` or from the merge commit
    instead of reviving the old implementation branch
 
 If a workstream is parked, superseded, or intentionally left partial, record

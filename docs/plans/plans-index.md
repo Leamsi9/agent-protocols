@@ -53,7 +53,8 @@ surfaces, not required companions for every proposal.
 
 ### `hotfix/`
 
-None.
+- [Behavioral acceptance and false-green gates, 2026-09-11](hotfix/2026-09-11-behavioral-acceptance-gates.md)
+- [Behavioral acceptance gates independent-review correction, 2026-09-11](hotfix/2026-09-11-behavioral-acceptance-gates-review.md)
 
 ### `proposals/`
 
