@@ -1,0 +1,100 @@
+title = "Behavioral acceptance gates independent-review correction"
+branch = "fix/behavioral-acceptance-gates-review-2026-09-11"
+baseline = "ce0f46b9f575e8d7a3ffc553574368ff39ac574e"
+root_dir = "../../.."
+phase_order = ["branch_setup", "protocol_correction", "validation"]
+
+[phases.branch_setup]
+summary = "Create the separate review-fix worktree and durable plan family."
+
+[[phases.branch_setup.checks]]
+id = "plan-exists"
+type = "path_exists"
+path = "docs/plans/hotfix/2026-09-11-behavioral-acceptance-gates-review.md"
+
+[[phases.branch_setup.checks]]
+id = "manifest-exists"
+type = "path_exists"
+path = "docs/plans/hotfix/2026-09-11-behavioral-acceptance-gates-review.plan.toml"
+
+[[phases.branch_setup.checks]]
+id = "worktree-bound"
+type = "git_branch_worktree"
+repo = "."
+branch = "fix/behavioral-acceptance-gates-review-2026-09-11"
+
+[phases.protocol_correction]
+summary = "Make acceptance cumulative and add a non-circular rollout path."
+depends_on = ["branch_setup"]
+
+[[phases.protocol_correction.checks]]
+id = "cumulative-evidence-ladder"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "A later state cannot be green"
+
+[[phases.protocol_correction.checks]]
+id = "mutable-tag-revokes-downstream"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "revokes **Deployment applied** and every downstream state"
+
+[[phases.protocol_correction.checks]]
+id = "controlled-rollout-defined"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "controlled integration rollout"
+
+[[phases.protocol_correction.checks]]
+id = "merge-does-not-prove-acceptance"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "it does not prove acceptance or"
+
+[[phases.protocol_correction.checks]]
+id = "unconditional-merge-gate-removed"
+type = "text_absent"
+path = "substantive-work-protocol.md"
+text = "Merge only after acceptance and final-green closure."
+
+[[phases.protocol_correction.checks]]
+id = "canonical-fixture-gate-retained"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "sole promotion gate."
+
+[[phases.protocol_correction.checks]]
+id = "runtime-digest-gate-retained"
+type = "text_present"
+path = "substantive-work-protocol.md"
+text = "selected tag-to-digest resolution"
+
+[phases.validation]
+summary = "Run complete checks and leave a clean review checkpoint."
+depends_on = ["protocol_correction"]
+
+[[phases.validation.checks]]
+id = "protocol-tool-tests"
+type = "command"
+command = "python3 -m unittest discover -s tests -p 'test_*.py'"
+
+[[phases.validation.checks]]
+id = "diff-check"
+type = "command"
+command = "git diff --check ce0f46b9f575e8d7a3ffc553574368ff39ac574e...HEAD"
+
+[[phases.validation.checks]]
+id = "repo-clean"
+type = "git_clean"
+repo = "."
+
+[[phases.validation.checks]]
+id = "head-ahead"
+type = "git_head_ahead"
+repo = "."
+
+[[phases.validation.checks]]
+id = "branch-bound"
+type = "git_branch_worktree"
+repo = "."
+branch = "fix/behavioral-acceptance-gates-review-2026-09-11"
