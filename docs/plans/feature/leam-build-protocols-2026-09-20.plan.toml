@@ -1,0 +1,20 @@
+title = "Reliable acceptance gates for Leam"
+branch = "feature/leam-build-protocols-2026-09-20"
+root_dir = "../../.."
+phase_order = ["branch_setup", "implementation"]
+[phases.branch_setup]
+summary = "Dedicated worktree"
+[[phases.branch_setup.checks]]
+id = "worktree"
+type = "git_branch_worktree"
+current = true
+[phases.implementation]
+summary = "Behavioral checker regression suite"
+depends_on = ["branch_setup"]
+[[phases.implementation.checks]]
+id = "tests"
+type = "command"
+command = "python3 -m unittest discover -s tests -v"
+min_tests = 20
+max_skipped = 0
+max_expected_failures = 0

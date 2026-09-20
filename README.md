@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.18`
+Experimental package version: `0.0.19`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream

@@ -758,3 +758,9 @@ The intended lifecycle is:
 If a workstream is parked, superseded, or intentionally left partial, record
 that in the durable plan instead of silently leaving the branch as ambiguous
 truth.
+
+## Acceptance manifest validation
+
+The checker validates all phases before executing commands. Every phase needs at least one check; phase order must include every phase exactly once with dependencies before dependents. Missing dependencies, cycles and duplicate identifiers fail closed. Existing manifests with empty placeholder phases must add meaningful checks or remove those phases before upgrading.
+
+For unittest command acceptance, use `min_tests = 1`, `max_skipped = 0`, and `max_expected_failures = 0`. This opt-in contract rejects exit-zero commands without the required executed tests. It checks test-run evidence, not the substantive quality of the tests or deployed behavior. Other test runners require their own evidence adapters.
