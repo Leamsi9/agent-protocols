@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.18`
+Experimental package version: `0.0.20`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream
@@ -168,6 +168,8 @@ different repo.
 - `local/README.md`
   Package-source marker for the consumer-owned local protocol overlay. Consumer
   files under `agent-protocols/local/` are not package-owned.
+- `skills/gated-phase-execution/SKILL.md`
+  Thin planning adapter; canonical workflow stays in the selected base protocol.
 - `skills/git-cleanup/SKILL.md`
   Optional assistant skill for independent git/worktree cleanup triage. It is
   package-owned so consumers can project it into Codex, Claude, Ironclaw, or

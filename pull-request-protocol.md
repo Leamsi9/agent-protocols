@@ -9,52 +9,19 @@ merge mechanics.
 
 ## Required Preparation
 
-Before writing the PR body:
+Finish the selected base protocol's cleanup, validation and review gates before
+opening the PR. Reuse evidence for the same diff and applicable environment; do
+not repeat those gates solely to write a PR body. If the diff or relevant evidence
+changed, rerun only affected checks/review under that base protocol. Explain
+unresolved limitations without implying acceptance.
 
-1. Finish the applicable substantive or minor work protocol through the temp
-   cleanup and final code review gates.
-2. Run the temp artifact cleanup gate and remove temporary residue that should
-   not survive review.
-3. Run the final code review gate for the full branch diff. When the toolchain
-   supports it, run that review in a fresh independent review context,
-   preferably via a subagent. Give the reviewer the diff, relevant protocols,
-   test evidence, and acceptance criteria, but not the implementer's defensive
-   rationale.
-   If a fresh independent review context is unavailable, record why it is
-   unavailable and perform the best available independent-style full-diff review
-   before proceeding.
-4. Resolve each credible side-effect risk with added or rerun tests where the
-   risk is testable. If automation is not practical or the risk is not
-   applicable, record the narrow manual validation or the reason no extra
-   validation applies.
-5. After review feedback has been addressed, decide whether another independent
-   review pass is necessary. Ask the operator for approval before spending
-   another review round unless the repo policy, user instruction, or current
-   task contract already requires it. Another review is usually warranted when
-   review implementation changed production behavior, public contracts, storage,
-   security, deployment wiring, or user-visible flows; when the fix materially
-   expanded the diff; when the first review found high-severity or systemic
-   issues; or when meaningful uncertainty remains. It is usually good enough to
-   stop when fixes were small/local, required checks are green, risks are
-   documented, and another review would mainly reread an unchanged diff.
+## Format
 
-Do not use a PR description to smooth over untested side-effect risk. If a risk
-is plausible and testable, test it before asking for review.
-
-## Required Format
-
-Use exactly these top-level sections unless the repo's PR template requires
-additional metadata:
-
-```markdown
-## Issue or Feature
-
-## Implementation Rationale
-
-## Risks and Mitigations
-
-## Tests
-```
+Follow the repository PR template when present. Otherwise a small change needs
+only the concrete problem/result and validation. For substantive changes use
+these sections when they help reviewers: Issue or Feature, Implementation
+Rationale, Risks and Mitigations, Tests. Omit empty or redundant sections; include
+material risks and limitations regardless of the layout.
 
 ### Issue or Feature
 
@@ -81,8 +48,7 @@ adjacent code paths, data contracts, runtime configuration, permissions, public
 APIs, and user-visible workflows.
 
 For each risk, include the mitigation. When the mitigation is a test or
-validation command, name it here and include the full command and result again
-under `Tests`.
+validation command, refer to the command and result recorded once under `Tests`.
 
 If there are no meaningful risks beyond a docs-only or local-only edit, say so
 explicitly and name the boundary that makes the risk local.

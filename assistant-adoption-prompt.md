@@ -32,14 +32,14 @@ Requirements:
    - If linked repos are ambiguous, do not invent them; leave the config rooted
      to the main repo only and call out the gap.
 4. Point live instruction surfaces such as `AGENTS.md`, `CLAUDE.md`, or the
-   repo's equivalent assistant entrypoints at
-   `{{VENDOR_DIR}}/substantive-work-protocol.md`.
+   repo's equivalent assistant entrypoints at the local trigger index, matching
+   overlays and exactly one applicable substantive/minor base protocol.
 5. Add or refresh the repo-local planning surfaces expected by the package:
    - `docs/plans/README.md`
    - `docs/plans/plans-index.md`
    - `docs/plans/cross-repo/README.md` if this repo is or may become a
      cross-repo orchestration root
-   - `docs/live-workstream-status.md`
+   - `docs/live-workstream-status.md` only if the repo uses a generated live ledger
    - `docs/temp/README.md`
    - `docs/proposals/README.md` only if the repo keeps proposal logs
    - `docs/adr/pending/README.md` if the repo keeps pending ADRs
@@ -79,7 +79,8 @@ Requirements:
    apply:
    - `python3 {{VENDOR_DIR}}/scripts/check_gated_plan.py ...`
    - `python3 {{VENDOR_DIR}}/scripts/repo_state.py --repo . --json`
-   - `python3 {{VENDOR_DIR}}/scripts/workstream.py sync-index --confirm`
+   - `python3 {{VENDOR_DIR}}/scripts/workstream.py sync-index --confirm` only when
+     the repo uses that ledger and its inventory changed
    - `python3 -m py_compile {{VENDOR_DIR}}/scripts/check_gated_plan.py {{VENDOR_DIR}}/scripts/workstream.py {{VENDOR_DIR}}/scripts/repo_state.py {{VENDOR_DIR}}/scripts/install.py`
 11. Summarize:
    - what changed

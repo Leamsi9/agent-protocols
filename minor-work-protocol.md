@@ -56,14 +56,11 @@ It does not replace:
    meaningful failing test for the intended behavior, add the code, then prove
    the same test passes. Do not make the test weak enough for incomplete or
    buggy code to pass.
-8. Before landing, opening a PR, or treating the branch's final commit as
-   complete, run a full-diff code review gate. When the toolchain supports it,
-   run that review in a fresh independent review context, preferably via a
-   subagent. Look especially for side effects on nearby code paths, shared
-   helpers, data contracts, runtime configuration, permissions, public APIs, and
-   user-visible workflows. If a side effect is plausible, add or run the focused
-   test or validation needed to prove the risk is mitigated. Do not guess that
-   side effects are safe because the change is small.
+8. Before landing or reporting completion, inspect the full diff and validate
+   plausible side effects. An implementing-agent review suffices for an ordinary
+   low-risk minor change. Use independent review when required by repo policy,
+   requested by the user, or warranted by unresolved risk; escalate to substantive
+   if that risk exceeds the minor criteria.
 9. After the change lands, decide whether the decision behind it is worth
    preserving in a durable record. For most minor work the answer is no; for
    some it is yes.
@@ -105,9 +102,10 @@ Escalate to the substantive protocol when any of these become true:
 - the work uncovers a separate problem that is not obviously a one-line fix
 - the operator or a reviewer asks for a plan, manifest, or completion log
 
-When you escalate, stop committing on the minor branch, treat the work in
-progress as early exploration, and recreate the work on a substantive branch
-with a durable plan and `.plan.toml` manifest.
+When you escalate, preserve the current edits and baseline. Add the substantive
+plan/manifest and satisfy its dedicated branch/worktree gates before continuing.
+Reuse an already suitable branch/worktree; escalation does not require replaying
+completed work.
 
 ## When Not To Use This
 
@@ -140,11 +138,8 @@ Closeout for minor work is:
 1. run the temp artifact cleanup gate: preserve durable content, then delete
    temporary files, lock files, scratch inventories, and placeholder examples
    that are not meant to survive
-2. run the final code review gate in a fresh independent review context when
-   the toolchain supports it, preferably via a subagent. Give the reviewer the
-   diff, relevant protocols, test evidence, and acceptance criteria, but not
-   the implementer's defensive rationale. Resolve each credible side-effect risk
-   with added or rerun tests, or record why it is not applicable
+2. review the full diff under the final review gate below; reuse valid review
+   evidence when preparing a PR
 3. ensure the change is on the integration branch and pushed when the repo
    policy expects a remote checkpoint
 4. if a PR is required, write the PR body with the
@@ -160,71 +155,26 @@ It is a lightweight historical breadcrumb, not a gate.
 Run this gate after the focused change and validation evidence are in place,
 but before final code review, landing, or final git checkpoint.
 
-Review `docs/temp/` and any other temporary location touched by the minor
-change. Promote any durable finding into the right long-lived surface, then
+Review temporary artifacts owned by this change; preserve unrelated work. Promote any durable finding into the right long-lived surface, then
 delete temporary files, editor lock files, scratch outputs, and placeholder
-example plans that are not meant to survive. `docs/temp/` should normally end
-with only `README.md` unless an active follow-up note is explicitly justified.
+example plans that are not meant to survive. Leave no disposable residue from this task; do not sweep other tasks' notes.
 
 ## Final Code Review Gate
 
-Run this gate after the focused change and required docs updates are in place,
-but before landing, opening a PR, or reporting the branch's final commit as the
-complete reviewable result.
+Inspect the full diff after implementation and required docs updates, before
+landing, PR or final checkpoint. Review adjacent call sites and affected contracts;
+resolve plausible side effects with focused tests or narrow manual validation.
+Record the result in the commit or PR; no separate review document is required.
 
-When the toolchain supports it, run the review in a fresh independent review
-context, preferably via a subagent. Give the reviewer the diff, relevant
-protocols, test evidence, and acceptance criteria, but not the implementer's
-defensive rationale. The implementing agent still owns follow-up fixes,
-validation, and final responsibility for the branch.
+An implementing-agent full-diff review is sufficient for genuinely minor work
+unless the user or repo requires independent review. If independent review is
+required but unavailable, record the limitation; do not claim it happened.
+Escalate meaningful product, runtime, security or non-local risk to substantive.
 
-If a fresh independent review context is unavailable, record why it is
-unavailable and perform the best available independent-style full-diff review
-before proceeding.
-
-The review must inspect the full branch diff against the starting baseline and
-ask where the small change could have side effects beyond the directly edited
-lines. For each plausible risk, prove the mitigation before proceeding:
-
-- add or update a focused automated test when the risk is code-testable
-- run the existing regression, integration, or contract test that covers the
-  side effect
-- perform a narrow manual validation only when automation is not practical, and
-  record why that manual check is the right evidence
-
-If the review finds a real defect or an unproven risk, fix it and rerun the
-relevant checks before closeout. Resolve each credible side-effect risk with
-added or rerun tests, or record why it is not applicable. Do not proceed on
-"looks safe" reasoning alone.
-
-After review feedback has been addressed, decide whether another independent
-review pass is necessary before final checkpoint. Ask the operator for approval
-before spending another review round unless the repo policy, user instruction,
-or current task contract already requires it.
-
-Run another review when any of these are true:
-
-- review implementation changed production code, public contracts, schemas,
-  migrations, auth/security/billing/privacy boundaries, deployment/runtime
-  config, scheduled jobs, or background workers
-- the fix touched files outside the originally reviewed diff or materially
-  increased the diff size or scope
-- the first review found a high-severity defect, multiple credible side-effect
-  risks, or a systemic test gap
-- acceptance criteria changed, or failing checks required non-trivial fixes
-- meaningful uncertainty remains about correctness, security, data integrity, or
-  user-visible behavior
-
-It is usually good enough to stop without another review when all of these are
-true:
-
-- review feedback was resolved with small local edits, docs clarification, test
-  evidence, or rerun checks only
-- no new production behavior, public contract, storage shape, security boundary,
-  deployment wiring, or user-visible flow changed after the review
-- targeted tests, phase gates, and required manual validations are green
-- remaining risks are documented as mitigated, accepted, or not applicable
-- another review would mainly reread an unchanged diff
+After corrections rerun affected checks. Repeat independent review only for
+materially changed behavior, expanded scope or unresolved risk, subject to the
+applicable substantive criteria. Do not commission another worker just to reread
+an unchanged diff, or seek new approval for necessary in-scope follow-up.
 
 ## Repo-State Audit
 

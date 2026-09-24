@@ -14,7 +14,7 @@ capture does not automatically require the full substantive artifact set.
 
 This protocol is the default when any of these are true:
 
-- the change spans multiple files or modules
+- the change has non-local effects across modules (file count alone is not a trigger)
 - the work has meaningful product, runtime, or security risk
 - the work needs more than one reviewable implementation slice
 - the work crosses repos or ownership boundaries
@@ -41,8 +41,9 @@ use this protocol unless there is a very good reason not to.
    is the reviewed source.
 4. If the work spans repos, create a matching branch pair and keep each repo in
    its own worktree.
-5. Break the work into an ordered sequence of gated mini-plans instead of one
-   giant plan.
+5. Use gated phases at real dependency, review, or acceptance boundaries. A
+   single implementation slice can use one execution phase; do not invent phases
+   solely for planning, documentation updates, or status reporting.
 6. Only one phase may be actively implemented at a time.
 7. Do not advance until the current phase exit gate passes.
 8. Do not call work complete from narrative judgement alone. Completion must be
@@ -191,122 +192,56 @@ Use these meanings consistently:
 
 ## Artifact Economy
 
-Substantive work should preserve the smallest durable artifact set that proves
-the work can be reviewed, resumed, or rolled back.
+Keep one concise plan and one adjacent `.plan.toml` in `docs/plans/` for the
+workstream. Reuse them across follow-up fixes, reviews, and resumptions within
+that scope. One orchestration repo owns cross-repo plans; other repos need only
+a pointer if local discoverability requires one. Do not create a plan family per
+worker, turn, review round, or deployment of the same slice.
 
-The normal durable minimum is:
+The plan records the goal, baseline, branch/worktree binding, effective policy,
+write scope, acceptance boundary, phase order and unresolved decisions. The
+manifest owns executable checks; refer to them instead of copying commands and
+results into multiple documents. Put a compact closeout in the plan with result,
+revision, evidence locator and remaining limitations. Separate logs, ADRs,
+mirrors or per-phase notes require distinct lasting information and a reader.
 
-- one concise plan
-- one machine-checkable manifest while phases are active
+Use the [Plan protocol](plan-protocol.md) only for placement/schema questions,
+the [Proposal protocol](proposal-protocol.md) when implementation is deferred,
+and the [Temp doc protocol](temp-doc-protocol.md) when creating temporary notes.
+Scratch command output can stay in a task-scoped untracked temporary directory;
+do not create a repo document merely to delete it at closeout. Keep secrets,
+private operational state and original transcripts out of public Git.
 
-Add a completion log, companion notes, proposal logs, pending ADRs, or mirrors
-only when they carry information that is not already clear from the plan,
-commit history, tests, or final review notes.
+## Context And Evidence Reuse
 
-Temporary ledgers, inventories, tracking manifests, and scratch notes should
-start in `docs/temp/` or another repo-approved temporary location. At closeout,
-fold any lasting evidence into the plan, ADR, history note, or commit message,
-then delete the temporary files.
+Resolve repository instructions and matching local overlays before selecting
+exactly one base protocol. Explicit user instructions and applicable authorized
+local overrides take precedence within their scope; retain unaffected gates.
+Record the effective policy in the existing plan/handoff. Skills are adapters,
+not additional independent workflows.
 
-## Canonical Artifact Set
+Read the selected base once per unchanged working context. Load other protocols,
+large contracts, logs and historical plans only for the action or section needed.
+After resumption, recheck instruction identity, current source and affected external
+state; unchanged content need not be pasted or read in full again. A summary may
+route to evidence but cannot replace a required gate.
 
-Substantive work should use these artifacts.
-
-### 1. Durable plan doc
-
-Store the durable workstream plan in `docs/plans/`.
-
-If the repo uses the optional `docs/plans/cross-repo/` extension and the work
-requires coordinated implementation or acceptance across multiple repos, keep
-the canonical plan there instead of in the local-only buckets.
-
-The plan should record:
-
-- the goal
-- the baseline branch or commit
-- the branch name for the work
-- the ordered phases
-- the write scope
-- the validation and exit gates
-
-### 2. Phase manifest
-
-Store a machine-checkable manifest next to the plan. The recommended suffix is
-`.plan.toml`.
-
-A manifest is a phase-gate file paired with a durable plan. A manifest is not
-automatically a proposal.
-
-The manifest is the fail-closed source of truth for whether a phase is actually
-done.
-
-### 3. Optional completion log
-
-Use an append-only completion log when the evidence is too detailed or
-multi-stage to live cleanly in the plan or final review notes. For small
-substantive slices, a short closeout section in the plan or commit can be
-enough.
-
-A completion log, when used, should capture:
-
-- phase evidence that actually passed
-- important SHAs, merges, pushes, and cleanup actions
-- remaining work after the finished slice
-
-### 4. Proposal protocol when implementation is intentionally deferred
-
-If the workstream stops at a durable proposal rather than implementation,
-follow the [Proposal protocol](proposal-protocol.md) for right-sized durable
-capture instead of creating a full implementation artifact bundle.
-
-### 5. Optional per-phase notes
-
-If a phase is large, give it a short companion markdown note near the durable
-plan. Keep those notes in `docs/plans/`, not in runtime procedure folders.
-
-### 6. Repo-local mirrors only when needed
-
-If one repo or product owns the canonical plan, other repos should point back
-to it and add thin local notes only when they genuinely need companion
-guidance.
-
-### 7. Temporary docs go in `docs/temp/` first
-
-If a markdown note is useful during execution but is not one of the durable
-artifacts required by this protocol, create it under `docs/temp/` and follow
-the [Temp doc protocol](temp-doc-protocol.md).
-
-Before closing the workstream, review the temp docs, preserve any durable
-content in the appropriate long-lived surface, and then delete the temp docs.
-
-### 8. Placement heuristic for local versus cross-repo plans
-
-Use the default local taxonomy when one repo can own implementation,
-validation, and acceptance.
-
-Use `docs/plans/cross-repo/` only when completion or acceptance depends on
-coordinated work across 2+ repos.
-
-Another repo being referenced for context does not make a plan cross-repo by
-itself.
-
-If a local plan later expands into coordinated multi-repo work, supersede it
-or promote it into the orchestration repo under `docs/plans/cross-repo/`.
+Run a check at the boundary it proves. Reuse the result only while its relevant
+inputs, source identity, environment and authority remain unchanged and its
+freshness contract permits it. Changed inputs, failures, credible contradictions
+or expired external observations require the affected checks again. A previous
+unit test result never substitutes for current deployment identity, permissions,
+liveness or user acceptance. Report commands once with concise results; keep full
+logs outside the prompt and inspect failures selectively.
 
 ## Phase Structure
 
 Each phase should be small enough to fit in one working context window and one
 reviewable change slice.
 
-Every phase should declare:
-
-- `Goal`
-- `Write scope`
-- `Dependencies`
-- `Checks`
-- `Negative assertions`
-- `Required docs or ledger updates`
-- `Exit gate`
+For each phase record goal, write scope and exit checks. Add dependencies,
+negative assertions, or document updates when applicable; omit empty template
+fields. The plan may reference the manifest for checks instead of duplicating it.
 
 ### Checks
 
@@ -332,51 +267,29 @@ Examples:
 - an obsolete path is gone
 - a stale branch name is no longer documented as current
 
-If a phase only proves what is present and never proves what is gone, the gate
-is usually too weak.
+Require absence checks for removals, replacements and migrations. Additive work
+does not need an invented negative assertion.
 
 ## Standard Execution Loop
 
-For substantive work, follow this loop every time:
-
-1. Start from a clean integration worktree on the repo’s primary integration
-   branch and sync it with origin when the repo policy expects that.
-2. Create a dedicated branch from that clean integration baseline.
-3. Create a dedicated worktree for the branch instead of implementing in the
-   integration checkout.
-4. If the change spans repos, create a matching branch worktree in each repo.
-5. Run a repo-state audit in the implementation worktree when
-   `agent-protocols/scripts/repo_state.py` is available.
-6. Create or refresh the durable plan and the `.plan.toml` manifest, including
-   a `git_branch_worktree` check for each implementation branch.
-7. Run the branch-setup gate before implementation work begins. A branch ref
-   without a registered worktree is not a valid substantive work surface.
-8. Load only the current phase, the relevant code, and the required ledgers.
-9. Add or identify the tests that define the current phase's code surfaces and
-   run them before editing. For greenfield code, confirm the new test fails for
-   the missing behavior.
-10. Implement only the current phase.
-11. Re-run the targeted tests after each meaningful edit slice.
-12. Run the phase checker against the current phase.
-13. Update required docs, optional completion logs, mirrors, and any published
-   maps required by that phase.
-14. Re-run the phase checker.
-15. Advance only when the phase is green.
-16. Before opening a PR or treating the final branch commit as complete, run
-    the temp artifact cleanup gate. Preserve durable content in the proper
-    long-lived surface, then delete temporary files, lock files, scratch
-    inventories, and placeholder example plans that are not meant to survive.
-17. Before opening a PR or treating the final branch commit as complete, run
-    the final code review gate in a fresh independent review context when the
-    toolchain supports it, preferably via a subagent. Give the reviewer the
-    diff, relevant protocols, test evidence, and acceptance criteria, but not
-    the implementer's defensive rationale. Resolve each credible side-effect
-    risk with added or rerun tests, or record why it is not applicable.
-18. If a PR is required, write the PR body with the
-    [Pull request protocol](pull-request-protocol.md).
-19. Merge only after acceptance and final-green closure, or use the documented
-    controlled integration rollout when the real acceptance artifact cannot
-    exist before an integration merge.
+1. Inspect current integration state, sync with origin when policy expects it,
+   and create dedicated branch/worktree bindings. Preserve others' dirty work.
+2. Create or update the single plan/manifest and prove each binding with
+   `git_branch_worktree` before implementation. Run the repo-state audit when
+   available; retain a compact summary rather than loading the whole inventory.
+3. Load the active phase and relevant code. Establish the required pre-change
+   behavioral baseline, or a failing test for greenfield behavior.
+4. Implement the slice and update its required documentation. Run targeted tests
+   and the phase checker against this final phase state. Rerun affected gates
+   after subsequent edits; an unchanged documentation/status update alone is not
+   a reason to rerun unrelated tests.
+5. Advance only when the phase is green, subject to applicable local delivery
+   order. At closeout remove this task's temporary residue and perform the final
+   full-diff review below. Capture findings in the existing plan or review system.
+6. Use the [Pull request protocol](pull-request-protocol.md) when opening a PR.
+   Merge after acceptance/final gates, or use the documented controlled
+   integration rollout when acceptance requires a merge. Reuse valid review
+   evidence across PR preparation; opening a PR is not another review round.
 
 ## Repo-State Audit
 
@@ -405,8 +318,8 @@ worktree state, or when the work includes cleanup.
 Run this gate after implementation, validation evidence, and durable docs are
 in place, but before PR, merge, final code review, or final git checkpoint.
 
-Inspect `docs/temp/` and any other repo-approved temporary location used by
-the workstream. For every temporary artifact:
+Inspect only the temporary locations and artifacts created or owned by this
+workstream. Preserve unrelated active notes. For each owned temporary artifact:
 
 - promote durable findings into `docs/plans/`, `docs/proposals/`, `docs/adr/`,
   `docs/history/`, a completion log, or the commit message
@@ -415,8 +328,7 @@ the workstream. For every temporary artifact:
   lock files, generated test remnants, and placeholder example plans that are
   not meant to survive
 
-At closeout, `docs/temp/` should normally contain only `README.md` plus any
-explicitly active task notes. If a temp artifact must remain, record why it is
+At closeout, this task should leave no disposable residue. If a temp artifact must remain, record why it is
 still active in the plan, completion log, or final result.
 
 ## Final Code Review Gate
@@ -460,14 +372,14 @@ implementation phase. Resolve each credible side-effect risk with added or
 rerun tests, or record why it is not applicable. Do not proceed to PR, merge, or
 final branch checkpoint on "looks safe" reasoning alone.
 
-After review feedback has been addressed, decide whether another independent
-review pass is necessary before final checkpoint. Ask the operator for approval
-before spending another review round unless the repo policy, user instruction,
-or current task contract already requires it.
+After addressing review feedback, review the changed portion and its affected
+interfaces when the criteria below apply. Necessary follow-up validation belongs
+to the authorized task; ask only when it expands scope, permissions or material
+cost. Do not restart full review of unchanged scope by default.
 
 Run another review when any of these are true:
 
-- review implementation changed production code, public contracts, schemas,
+- review fixes materially changed production behavior, public contracts, schemas,
   migrations, auth/security/billing/privacy boundaries, deployment/runtime
   config, scheduled jobs, or background workers
 - the fix touched files outside the originally reviewed diff or materially
@@ -758,3 +670,9 @@ The intended lifecycle is:
 If a workstream is parked, superseded, or intentionally left partial, record
 that in the durable plan instead of silently leaving the branch as ambiguous
 truth.
+
+## Acceptance manifest validation
+
+The checker validates all phases before executing commands. Every phase needs at least one check; phase order must include every phase exactly once with dependencies before dependents. Missing dependencies, cycles and duplicate identifiers fail closed. Existing manifests with empty placeholder phases must add meaningful checks or remove those phases before upgrading.
+
+For unittest command acceptance, use `min_tests = 1`, `max_skipped = 0`, and `max_expected_failures = 0`. This opt-in contract rejects exit-zero commands without the required executed tests. It checks test-run evidence, not the substantive quality of the tests or deployed behavior. Other test runners require their own evidence adapters.

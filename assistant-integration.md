@@ -11,8 +11,8 @@ Recommended approach:
 
 1. vendor the package as `agent-protocols/`
 2. keep repo topology in a repo-local `agent-protocols.toml`
-3. point assistant instruction files at
-   `agent-protocols/substantive-work-protocol.md`
+3. point assistant instruction files at the local trigger index and exactly one
+   applicable base protocol
 4. keep repo-specific protocol extensions under `agent-protocols/local/`
 5. keep repo-specific landing pages, ledgers, ADRs, and any proposal logs
    outside the vendored package
@@ -42,10 +42,11 @@ duplicating it.
 Use a short pointer such as:
 
 ```md
-For substantive work, follow `agent-protocols/substantive-work-protocol.md`.
-Use `docs/temp/` for temporary working docs per `agent-protocols/temp-doc-protocol.md`.
-Repo topology and linked repos are declared in `agent-protocols.toml`.
-For git/worktree cleanup, prefer `agent-protocols/scripts/repo_state.py` before manual pruning.
+Read `agent-protocols/local/README.md` and matching overlays, then select exactly
+one base: substantive-work-protocol.md or minor-work-protocol.md under
+`agent-protocols/`. Reuse unchanged policy; load action-specific references only
+when needed. Repo topology is in `agent-protocols.toml`. For git/worktree cleanup,
+use `agent-protocols/scripts/repo_state.py` before manual pruning.
 ```
 
 ## Bootstrap Help

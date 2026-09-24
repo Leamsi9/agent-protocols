@@ -66,13 +66,40 @@ def resolve_root_dir(manifest_path: Path, data: dict[str, Any]) -> Path:
 
 
 def ordered_phases(data: dict[str, Any]) -> list[str]:
+    """Validate the complete graph before any check can execute."""
     phases = data["phases"]
-    order = data.get("phase_order")
-    if order is None:
-        return list(phases.keys())
-    missing = [phase for phase in order if phase not in phases]
-    if missing:
-        raise ValueError(f"phase_order contains unknown phases: {missing}")
+    if not phases:
+        raise ValueError("manifest must contain at least one phase")
+    order = data.get("phase_order", list(phases))
+    if not isinstance(order, list) or any(not isinstance(name, str) for name in order):
+        raise ValueError("phase_order must be a list of phase names")
+    if len(order) != len(set(order)) or set(order) != set(phases):
+        raise ValueError("phase_order must contain every phase exactly once")
+    positions = {name: index for index, name in enumerate(order)}
+    for name in order:
+        phase = phases[name]
+        if not isinstance(phase, dict):
+            raise ValueError(f"phase '{name}' must be a table")
+        checks = phase.get("checks")
+        if not isinstance(checks, list) or not checks:
+            raise ValueError(f"phase '{name}' must contain at least one check")
+        ids = set()
+        for check in checks:
+            if not isinstance(check, dict) or not isinstance(check.get("id"), str) or not check["id"].strip():
+                raise ValueError(f"phase '{name}' contains a check without an id")
+            if check["id"] in ids:
+                raise ValueError(f"phase '{name}' has duplicate check ids")
+            ids.add(check["id"])
+        dependencies = phase.get("depends_on", [])
+        if not isinstance(dependencies, list) or any(not isinstance(dep, str) for dep in dependencies):
+            raise ValueError(f"phase '{name}' depends_on must be a list of names")
+        if len(dependencies) != len(set(dependencies)):
+            raise ValueError(f"phase '{name}' has duplicate dependencies")
+        for dependency in dependencies:
+            if dependency not in phases:
+                raise ValueError(f"phase '{name}' depends on unknown phase '{dependency}'")
+            if positions[dependency] >= positions[name]:
+                raise ValueError(f"dependency '{dependency}' must precede '{name}'; cycles are invalid")
     return order
 
 
@@ -142,6 +169,54 @@ def parse_git_worktree_porcelain(output: str) -> list[dict[str, str]]:
 def resolve_repo_dir(root_dir: Path, raw_check: dict[str, Any]) -> Path:
     repo_value = str(raw_check.get("repo", "."))
     return resolve_check_path(root_dir, repo_value)
+
+
+def _command_test_output_contract(
+    raw_check: dict[str, Any], output: str
+) -> tuple[bool, str] | None:
+    """Enforce opt-in unittest counts so exit zero cannot hide no evidence."""
+
+    contract_fields = {"min_tests", "max_skipped", "max_expected_failures"}
+    if not contract_fields.intersection(raw_check):
+        return None
+
+    configured: dict[str, int] = {}
+    for field in contract_fields:
+        value = raw_check.get(field, 0 if field.startswith("max_") else None)
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            return False, f"{field} must be a non-negative integer"
+        configured[field] = value
+    if "min_tests" not in raw_check or configured["min_tests"] < 1:
+        return False, "min_tests must be a positive integer"
+
+    summaries = re.findall(r"\bRan\s+(\d+)\s+tests?\b", output)
+    if len(summaries) != 1:
+        return False, "command output must contain exactly one unittest summary"
+    terminal_results = re.findall(r"^(OK(?: \([^\n]*\))?|FAILED(?: \([^\n]*\))?)\s*$", output, re.MULTILINE)
+    if len(terminal_results) != 1 or not terminal_results[0].startswith("OK"):
+        return False, "command output must contain exactly one successful unittest result"
+    if re.search(r"(?<!expected )\b(?:failures|errors|unexpected successes)=([1-9]\d*)\b", output):
+        return False, "command output reports failed unittest results"
+    test_count = int(summaries[0])
+    skipped_matches = re.findall(r"\bskipped=(\d+)\b", output)
+    expected_failure_matches = re.findall(r"\bexpected failures=(\d+)\b", output)
+    skipped = sum(int(value) for value in skipped_matches)
+    expected_failures = sum(int(value) for value in expected_failure_matches)
+    counts = (
+        f"tests={test_count}, skipped={skipped}, "
+        f"expected_failures={expected_failures}"
+    )
+    if test_count < configured["min_tests"]:
+        return False, f"{counts}; requires at least {configured['min_tests']} tests"
+    if skipped > configured["max_skipped"]:
+        return False, f"{counts}; allows at most {configured['max_skipped']} skipped"
+    if expected_failures > configured["max_expected_failures"]:
+        return (
+            False,
+            f"{counts}; allows at most "
+            f"{configured['max_expected_failures']} expected failures",
+        )
+    return True, counts
 
 
 def run_check(
@@ -407,7 +482,13 @@ def run_check(
             text=True,
         )
         detail = completed.stdout.strip() or completed.stderr.strip() or f"exit {completed.returncode}"
-        return CheckResult(check_id, check_type, completed.returncode == 0, detail)
+        if completed.returncode != 0:
+            return CheckResult(check_id, check_type, False, detail)
+        contract = _command_test_output_contract(raw_check, f"{completed.stdout}\n{completed.stderr}")
+        if contract is not None:
+            passed, detail = contract
+            return CheckResult(check_id, check_type, passed, detail)
+        return CheckResult(check_id, check_type, True, detail)
 
     return CheckResult(
         check_id,
@@ -433,7 +514,6 @@ def evaluate_manifest(
         dependency_passed = all(
             results_by_phase[dependency].passed
             for dependency in dependencies
-            if dependency in results_by_phase
         )
         checks = [
             run_check(root_dir, raw_check, data)

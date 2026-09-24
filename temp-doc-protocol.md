@@ -55,7 +55,8 @@ If there is no stable feature slug yet, place the file directly under
 
 ## Lifecycle
 
-1. Create temporary notes in `docs/temp/` first.
+1. Create a note only when it helps execution or handoff. Task-scoped untracked
+   scratch space is suitable for command output; use `docs/temp/` for repo notes.
 2. Review them before closing the task.
 3. Preserve any durable content in `docs/plans/`, `docs/proposals/`,
    `docs/adr/`, `docs/history/`, or the commit message as appropriate.
@@ -67,7 +68,9 @@ small number of active task notes.
 
 ## Cleanup Gate
 
-Every substantive or minor closeout should include a temp cleanup gate.
+Every substantive or minor closeout checks for its own temporary residue. No
+cleanup report or empty directory is required when the task created none. Preserve
+unrelated active artifacts; cleanup is not permission to sweep another task.
 
 The gate passes only when each temp artifact has one of these dispositions:
 

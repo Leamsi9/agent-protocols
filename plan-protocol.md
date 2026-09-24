@@ -31,6 +31,8 @@ At the root of `docs/plans/`, keep:
   The durable inventory of live and historical plan surfaces.
 
 Do not overload `README.md` with generated live state or full inventory detail.
+Update inventories only when membership or durable status changes. Do not create
+or refresh a live ledger merely because a turn or heartbeat occurred.
 
 Outside `docs/plans/`, keep:
 
@@ -69,7 +71,9 @@ the stable subdirectories fits.
 
 ## Required Shape
 
-Each substantive workstream should usually include:
+Reuse one plan family per workstream, including its reviews and follow-up fixes.
+Use the manifest for commands and the plan for decisions; do not duplicate full
+check outputs across either surface, PRs, ledgers or handoffs. Each family includes:
 
 - one durable markdown plan
 - one adjacent `.plan.toml` manifest for machine-checkable phase gates
@@ -102,8 +106,8 @@ Every new durable plan should record, near the top of the file:
 - `Scope`
 - `Baseline`
 - `Branch`
-- `Related ADR`
-- `Supersedes`
+
+Add `Related ADR` and `Supersedes` only when they identify actual records.
 
 Proposal-only plan families should also record:
 
