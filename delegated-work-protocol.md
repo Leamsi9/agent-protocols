@@ -16,6 +16,18 @@ contract, needs multiple reviewable slices, or carries meaningful product,
 runtime, or security risk. If the job is non-mutating research or exploration,
 record that as `protocol_adopted: non_mutating`.
 
+## Scope And Cost
+
+Use delegation for a bounded independent task or a required independent review,
+not to satisfy a worker count or duplicate an existing check. A read-only reviewer
+can adopt `non_mutating` and use the parent's plan/evidence; it does not need a new
+branch, manifest, completion log or implementation protocol run. The parent retains
+responsibility for the substantive gate and accurate child quality reporting.
+
+Pass the effective policy, source identity, acceptance criteria and relevant paths.
+Do not copy the whole conversation, historical backlog or already available logs
+by default. This changes context size, not required preflight or quality evidence.
+
 ## Required Quality Evidence
 
 Before a delegated coding job starts, the runtime must deterministically record
