@@ -49,13 +49,18 @@ It does not replace:
    Do not split a minor change across multiple branches.
 5. Run any normally required checks (lint, format, tests) before merging.
    Minor scope is not a license to skip them.
-6. Before changing an existing code surface, add or identify a meaningful
-   passing behavioral test for that surface and run it before the edit. Re-run
-   it after the edit before landing the change.
-7. For greenfield code additions, use test-driven development: write a
-   meaningful failing test for the intended behavior, add the code, then prove
-   the same test passes. Do not make the test weak enough for incomplete or
-   buggy code to pass.
+6. Choose tests by behavioral risk and the cheapest reliable level: integration
+   tests for application interactions, focused unit/property tests for important
+   logic and edge cases, and E2E tests for critical user journeys. Do not mandate
+   per-function tests or fixed test ratios. Preserve meaningful existing
+   regressions and derive expected outcomes from requirements, not the current
+   implementation. Run relevant post-change validation and required checks;
+   cheaper tests do not replace actual-consumer behavioral acceptance or any
+   required independent review.
+7. Use test-first when it clarifies a contract or reproduces a defect. Neither
+   existing nor greenfield code requires blanket test-first sequencing or a
+   passing baseline before editing; use risk-based pre-change checks where
+   useful. Do not weaken tests to fit incomplete or buggy code.
 8. Before landing or reporting completion, inspect the full diff and validate
    plausible side effects. An implementing-agent review suffices for an ordinary
    low-risk minor change. Use independent review when required by repo policy,

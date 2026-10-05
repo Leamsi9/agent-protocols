@@ -1,0 +1,56 @@
+title = "Risk-based testing policy and dependent Leam refresh"
+branch = "feature/managed-9b955912-7089-5174-a8e4-125192743d8d"
+baseline = "d5e078515f65da2c816dc05f0c2fc28b289fabfb"
+root_dir = "../../.."
+phase_order = ["upstream", "leam_refresh"]
+
+[phases.upstream]
+summary = "Validate upstream source; independent review and publication remain external gates."
+
+[[phases.upstream.checks]]
+id = "current-worktree"
+type = "git_branch_worktree"
+repo = "."
+current = true
+
+[[phases.upstream.checks]]
+id = "package-version"
+type = "regex_present"
+path = "VERSION"
+pattern = '^0\.0\.21\n$'
+
+[[phases.upstream.checks]]
+id = "substantive-old-mandates-removed"
+type = "regex_absent"
+path = "substantive-work-protocol.md"
+pattern = '(?s)Before changing an existing code surface|For greenfield code, use test-driven development|Existing behavior needs passing regression coverage before the edit|required pre-change\s+behavioral baseline|greenfield behavior needs a failing test first'
+
+[[phases.upstream.checks]]
+id = "minor-old-mandates-removed"
+type = "regex_absent"
+path = "minor-work-protocol.md"
+pattern = 'Before changing an existing code surface|For greenfield code additions, use test-driven development'
+
+[[phases.upstream.checks]]
+id = "checker-regressions"
+type = "command"
+command = "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p test_check_gated_plan.py"
+min_tests = 1
+max_skipped = 0
+max_expected_failures = 0
+
+[[phases.upstream.checks]]
+id = "diff-whitespace"
+type = "command"
+command = "git diff --check"
+
+[phases.leam_refresh]
+summary = "Main owns exact-source review/publication, installer provenance, overlay preservation and actual-consumer acceptance."
+depends_on = ["upstream"]
+
+# Deliberate fail-closed boundary, not acceptance evidence. Main must supply
+# authoritative downstream gates in Leam's canonical orchestration plan.
+[[phases.leam_refresh.checks]]
+id = "orchestration-owned-refresh-pending"
+type = "command"
+command = "python3 -c \"import sys; sys.exit('PENDING: Main must verify independent review, exact published source/version/lock, preserved overlays and actual-consumer acceptance in Leam orchestration')\""

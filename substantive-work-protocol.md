@@ -58,14 +58,17 @@ use this protocol unless there is a very good reason not to.
 11. Proposal-only slices need only the durable artifacts that will still be
     useful after review. Use the proposal protocol to decide what survives,
     and keep temporary ledgers or inventories disposable by default.
-12. Before changing an existing code surface, add or identify meaningful
-    passing behavioral tests for that surface and run them before the edit.
-    Re-run those tests after the edit and at the relevant phase gate before
-    proceeding.
-13. For greenfield code, use test-driven development: write a meaningful test
-    that fails for the missing behavior, add the implementation, then prove
-    the same test passes. Do not weaken the test to fit incomplete or buggy
-    code.
+12. Choose tests by behavioral risk and the cheapest reliable level. Use
+    integration tests for application interactions, focused unit/property tests
+    for important logic and edge cases, and E2E tests for critical user journeys.
+    Do not mandate per-function tests or fixed test ratios. Preserve meaningful
+    existing regressions and derive expected outcomes from requirements, not
+    the current implementation.
+13. Use test-first when it clarifies a contract or reproduces a defect; neither
+    existing nor greenfield code requires blanket test-first sequencing or a
+    passing baseline before editing. Run risk-based pre-change checks where
+    useful. After implementation, run the relevant behavioral checks and required
+    phase gates; do not weaken tests to fit incomplete or buggy code.
 14. Before opening a PR, merging, or treating the branch's final commit as
     complete, run a full-diff code review gate. When the toolchain supports it,
     run that review in a fresh independent review context, preferably via a
@@ -252,11 +255,14 @@ Checks prove that the phase landed. Examples:
 - file or route existence checks
 - content assertions in docs or config
 
-For phases that change code, checks should include both the pre-change
-behavioral baseline and the post-change validation for the surfaces being
-touched. Existing behavior needs passing regression coverage before the edit;
-greenfield behavior needs a failing test first and the same test passing after
-implementation.
+For phases that change code, select checks by behavioral risk at the cheapest
+reliable level described in core rule 12. Record the risks and why the selected
+checks cover them. Use pre-change checks or test-first where they clarify the
+contract, reproduce a defect, or establish a useful baseline; neither is a
+blanket prerequisite to editing. Preserve meaningful regressions and validate
+the changed behavior after implementation and at the relevant phase gate.
+Cheaper tests do not replace actual-consumer behavioral acceptance, independent
+review, or required phase checks.
 
 ### Negative Assertions
 
@@ -277,8 +283,10 @@ does not need an invented negative assertion.
 2. Create or update the single plan/manifest and prove each binding with
    `git_branch_worktree` before implementation. Run the repo-state audit when
    available; retain a compact summary rather than loading the whole inventory.
-3. Load the active phase and relevant code. Establish the required pre-change
-   behavioral baseline, or a failing test for greenfield behavior.
+3. Load the active phase and relevant code. Select checks by behavioral risk
+   and the cheapest reliable level. Run pre-change checks or write a failing
+   test when useful to establish behavior, clarify a contract, or reproduce a
+   defect; do not require either as blanket sequencing.
 4. Implement the slice and update its required documentation. Run targeted tests
    and the phase checker against this final phase state. Rerun affected gates
    after subsequent edits; an unchanged documentation/status update alone is not
