@@ -1,6 +1,6 @@
 # Agent Protocols
 
-Experimental package version: `0.0.20`
+Experimental package version: `0.0.22`
 
 This package is a reusable, repo-agnostic protocol kit for agent-driven
 planning, right-sized proposal capture, phase gates, and live workstream
@@ -14,6 +14,27 @@ It is designed to work in either of these shapes:
 Canonical upstream repo:
 
 - `https://github.com/Leamsi9/agent-protocols`
+
+## Working Contract
+
+One concise plan per substantive workstream is sufficient by default, including
+its review, publication and refresh. Use phases, machine-readable manifests and
+checkers only when useful at real dependency or acceptance boundaries. Existing
+valid manifests and checker schemas remain supported; no migration is required.
+Scaffolded examples demonstrate optional tooling, not mandatory proof documents.
+
+Resolve repository instructions and matching local overlays before selecting one
+base protocol. Explicit user instructions and authorized local overrides take
+precedence within scope; retain unaffected requirements. Review order belongs to
+the repository; the generic default is independent substantive review before
+publication/merge. Repository-specific postdeployment order stays local.
+
+Preserve isolated branches/worktrees, meaningful risk-based tests, independent
+review, clean committed source, privacy and source/provenance. Tests target
+behavior at the cheapest reliable level; no blanket test-first sequence or fixed
+ratios. Real-consumer acceptance cannot be replaced by static or mock checks.
+Gate consequential actions on the evidence a competent engineer would require;
+do not add a gate merely because an earlier workstream had one.
 
 ## Adoption Quick Start
 
@@ -150,7 +171,7 @@ different repo.
   Lightweight workflow for tiny, single-slice changes that do not warrant the
   substantive protocol.
 - `delegated-work-protocol.md`
-  Deterministic sandbox-job wrapper that requires every coding job to adopt
+  Bounded delegation guidance requiring every coding job to adopt
   either the substantive or minor work protocol.
 - `proposal-protocol.md`
   Canonical workflow for proposal-only slices that stop before implementation,
@@ -179,7 +200,7 @@ different repo.
   support their manuscript invocation contexts, while keeping the citation
   verification protocol and deterministic gates as the canonical workflow.
 - `examples/gated-phase-manifest.example.toml`
-  Reusable example manifest for gated mini-plans.
+  Optional example manifest for a meaningful source acceptance boundary.
 - `scripts/check_gated_plan.py`
   Canonical phase-checker implementation.
 - `scripts/check_merge_to_main_protocol.py`
@@ -262,13 +283,13 @@ To vendor this package into another repo:
    `agent-protocols/substantive-work-protocol.md`.
 4. Add a short `docs/plans/README.md` landing page plus a
    `docs/plans/plans-index.md` inventory.
-5. Keep live generated status in a repo-local ledger such as
+5. If useful, keep live generated status in a repo-local ledger such as
    `docs/live-workstream-status.md`.
 6. Keep temporary working docs in `docs/temp/` and follow
    `agent-protocols/temp-doc-protocol.md`.
 7. Put repo-specific protocol extensions in `agent-protocols/local/`; package
    refreshes preserve that directory and do not treat it as upstream content.
-8. Run the canonical scripts directly:
+8. Run applicable canonical scripts when their boundary is needed:
    - `python3 agent-protocols/scripts/check_gated_plan.py path/to/work.plan.toml --phase phase_name`
    - `python3 agent-protocols/scripts/repo_state.py --repo . --json`
    - `python3 agent-protocols/scripts/workstream.py reconcile --json`
@@ -304,7 +325,7 @@ normally keep:
 - `docs/plans/proposals/`
   Compact proposal-only records when a proposal genuinely needs to survive.
 - `docs/live-workstream-status.md`
-  Script-owned current-state ledger.
+  Optional script-owned current-state ledger.
 - `docs/temp/README.md`
   Landing page for temporary working docs that should be reviewed and deleted
   after preservation.

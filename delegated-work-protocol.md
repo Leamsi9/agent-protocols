@@ -26,82 +26,42 @@ responsibility for the substantive gate and accurate child quality reporting.
 
 Pass the effective policy, source identity, acceptance criteria and relevant paths.
 Do not copy the whole conversation, historical backlog or already available logs
-by default. This changes context size, not required preflight or quality evidence.
+by default. Preserve any preflight or quality evidence required by local policy.
 
-## Required Quality Evidence
+## Handoff And Evidence
 
-Before a delegated coding job starts, the runtime must deterministically record
-a preflight report with:
+Before editing, confirm the bounded assignment, selected base protocol, effective
+local overrides, baseline/source identity, branch/worktree and write ownership.
+Carry the configured model/effort, permissions, dependencies and acceptance criteria
+when the repository uses them. Verify these facts from the available authoritative
+runtime and Git state; prompt text alone is not proof of runtime enforcement.
+Stop on conflicting ownership or uncertain effects rather than launching a duplicate.
 
-- host project directory and delegated container working directory
-- resolved git worktree root when available
-- current branch and commit when git metadata is available
-- for mutating substantive jobs, whether the current branch is registered in
-  `git worktree list --porcelain`, and the registered path
-- repo-state audit availability and output summary when
-  `agent-protocols/scripts/repo_state.py` is present
-- delegated protocol path supplied to the worker
-- selected work protocol path or a required worker selection step between
-  `minor`, `substantive`, and `non_mutating`
-- recorded baseline branch or commit for implementation work when available
-- effective worker mode, model, reasoning effort, and sandbox mode
-- expected developer tools, starting with `git` and `rg`
-- whether browser or mobile verification is required by the task
-- whether the job may start cleanly, start degraded, or fail before execution
+Use the parent's plan and existing transport receipt or job result. The generic
+package does not require a new preflight report, injected gate receipt, child plan,
+quality log or machine-readable manifest. A consuming runtime may require such
+records at its dispatch/authority boundary; preserve that local contract and report
+missing evidence honestly. Do not invent successful receipts.
 
-The repo-state audit is a classifier, not a cleanup command. Delegated runtimes
-or workers may apply safe cleanup only when cleanup is explicitly in scope and
-the adopted minor or substantive protocol permits it.
+For substantive mutation, use a dedicated registered branch/worktree. Audit ambiguous
+Git state before cleanup; delegation grants no cleanup or publication permission.
+Read-only review needs no implementation branch or separate plan.
 
-The preflight report is runtime evidence. Prompt text may point workers at this
-protocol, but prompt text is not the enforcement mechanism.
+## Completion And Follow-Up
 
-The delegated runtime must inject a protocol gate before the worker's task
-content. That gate must instruct the worker to read this protocol first and
-then adopt exactly one of:
+Return the scoped result, source identity, checks and limitations in the existing
+handoff or job result. Mutating source handoffs require the base protocol's clean
+committed checkpoint. Distinguish source validation from independent review,
+publication, deployment and actual-consumer acceptance. Missing browser verification
+or failed checks remain visible; do not present them as passed.
 
-- `protocol_adopted: minor`
-- `protocol_adopted: substantive`
-- `protocol_adopted: non_mutating`
+The parent retains responsibility for integration and accurate quality reporting.
+Preserve each child's unresolved failure or limitation rather than hiding it behind
+a successful aggregate. Existing runtime states such as `passed`,
+`degraded_preflight`, `degraded_workers`, `degraded_verification` and `failed_gate`
+remain compatible, but this package does not require a separate quality log.
 
-The quality log must contain deterministic evidence that this protocol gate was
-provided to the worker and that the work protocol adoption step was required.
-
-## Completion Quality
-
-Delegated jobs finish with one top-level quality state:
-
-- `passed`: preflight, worker execution, follow-ups, final git checkpoint, and
-  required verification all produced sufficient evidence, including a
-  registered branch/worktree binding for substantive repo-mutating work
-- `degraded_preflight`: the job ran after a non-fatal environment issue
-- `degraded_workers`: follow-up workers or resume launches failed
-- `degraded_verification`: required browser or mobile verification evidence is
-  missing or incomplete
-- `failed_gate`: a required gate failed and the job should not be treated as
-  complete
-
-The top-level state may still be the most severe state for compact display, but
-the quality log must report every non-passed state and every issue. For
-example, a job with missing `rg`, failed follow-up resume, and missing browser
-evidence should preserve all three states and all three issue messages, not
-only `degraded_workers`.
-
-## Follow-Up Workers
-
-Follow-up prompts, resumed sessions, and child workers are delegated work too.
-They must receive this protocol gate before their task content.
-
-The parent job must fold child quality logs into its own quality log without
-inference:
-
-- preserve every child quality state other than `passed`
-- preserve every child quality issue
-- use `degraded_workers` when a child worker, follow-up prompt, or resume
-  launch fails but the parent output remains usable
-- use `failed_gate` when the child failure invalidates the parent result or
-  violates the adopted minor/substantive protocol
-
-If a delegated job adopts the substantive protocol and reports a branch as
-ready for review, runnable, or complete while that branch has no registered
-worktree, the parent job must treat the result as `failed_gate`.
+Resumed or follow-up workers inherit the same scope and policy unless explicitly
+changed. Recheck changed source, ownership and authority; reuse unchanged evidence.
+Necessary fixes and review remain in the same workstream. Neither delegation nor
+this adapter creates permission to dispatch more workers.

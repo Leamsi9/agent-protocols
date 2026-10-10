@@ -7,6 +7,10 @@ The repo-local plans folder owns its own landing page, inventory, and local
 adaptation notes. This protocol defines the generic planning taxonomy and
 artifact rules those docs should follow.
 
+Explicit user instructions and authorized local overrides take precedence within
+their scope; retain unaffected base requirements. This placement guide adds no
+separate planning workstream or mandatory proof document.
+
 ## Purpose
 
 `docs/plans/` stores durable planning documents for substantive work.
@@ -71,20 +75,12 @@ the stable subdirectories fits.
 
 ## Required Shape
 
-Reuse one plan family per workstream, including its reviews and follow-up fixes.
-Use the manifest for commands and the plan for decisions; do not duplicate full
-check outputs across either surface, PRs, ledgers or handoffs. Each family includes:
-
-- one durable markdown plan
-- one adjacent `.plan.toml` manifest for machine-checkable phase gates
-- one append-only completion log only when the evidence does not fit cleanly
-  in the plan or final review notes
-- optional phase notes only when the work is too large for one concise plan doc
-
-Prefer matching basenames so the family is easy to scan in a folder, for
-example `example-workstream.md` and `example-workstream.plan.toml`; add
-`example-workstream-completion.md` only when a separate completion log is
-useful.
+One concise Markdown plan is sufficient by default. Reuse it for the workstream,
+including implementation, review, publication, refresh and follow-up fixes.
+Record decisions and concise validation results there. An adjacent `.plan.toml`
+is optional when machine checks help at a real dependency or acceptance boundary;
+existing manifests remain supported. Extra logs or phase notes need distinct
+lasting information and a reader, not a template requirement.
 
 When a workstream belongs to a clear feature or initiative, prefer that slug in
 the basename so related artifacts cluster together in scans, for example
@@ -115,10 +111,10 @@ Proposal-only plan families should also record:
 - the proposal-log path only when one exists
 - the pending ADR path only when one exists
 
-For substantive gated work, the durable plan should also record:
+For substantive work, the durable plan should also record:
 
 - the goal
-- the ordered gated phases
+- real dependencies or acceptance boundaries, if any
 - the write scope
 - the validation and exit gates
 
@@ -126,8 +122,10 @@ For compact proposal records, record the proposed change, owner, current
 status, reason to revisit, and next implementation trigger instead of filling
 out an implementation-phase template prematurely.
 
-When a manifest exists, it is the fail-closed oracle for whether a phase is
-done. Do not mark a gated phase complete from narrative judgement alone.
+When a manifest is used for a boundary, its checks must pass before claiming
+that boundary passed. The checker proves only what its checks actually observe;
+static checks never establish live acceptance. Without a manifest, record the
+relevant commands, observations and limitations directly in the plan.
 
 When `Scope` is used, keep it explicit:
 

@@ -9,11 +9,17 @@ merge mechanics.
 
 ## Required Preparation
 
-Finish the selected base protocol's cleanup, validation and review gates before
-opening the PR. Reuse evidence for the same diff and applicable environment; do
-not repeat those gates solely to write a PR body. If the diff or relevant evidence
-changed, rerun only affected checks/review under that base protocol. Explain
-unresolved limitations without implying acceptance.
+Before opening the PR, finish the cleanup, validation and review gates due at
+that boundary under the effective policy (the selected base plus explicit user
+instructions and applicable authorized local overrides), including independent
+review when required by the selected base. Independent substantive review before
+publication or merge remains the generic default; authorized local delivery
+policy may change its timing. Keep later review, QA and acceptance explicitly
+pending rather than implying that opening the PR satisfies them. Reuse valid
+evidence for the same diff and applicable environment; do not repeat gates solely
+to write a PR body. If the diff or relevant evidence changed, rerun only affected
+checks/review under the effective policy. Explain unresolved limitations without
+implying acceptance; no new proof artifact is required solely for PR preparation.
 
 ## Format
 

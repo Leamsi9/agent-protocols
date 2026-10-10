@@ -57,8 +57,11 @@ Requirements:
      `python3 {{VENDOR_DIR}}/scripts/repo_state.py --repo . --json` before
      manual pruning or branch deletion.
 9. If the change is substantive, follow `{{VENDOR_DIR}}/substantive-work-protocol.md`:
-   create the smallest durable plan family that proves the work, keep phases
-   gated, and do not claim completion without the checker passing.
+   keep one concise plan for the workstream, including review and refresh.
+   Use manifests/checkers only when useful at real dependency or acceptance
+   boundaries; preserve existing valid manifests. Record actual evidence.
+   Explicit user instructions and authorized local overrides take precedence
+   within their scope; retain unaffected requirements and local review order.
    - If the work is local to this repo, place the plan in the default
      `docs/plans/` taxonomy.
    - If completion or acceptance depends on coordinated work across 2+ repos
@@ -77,11 +80,12 @@ Requirements:
      `docs/temp/<feature-slug>/<topic>-YYYY-MM-DD.md`.
 10. Run the narrowest validation needed for the repo plus the package checks that
    apply:
-   - `python3 {{VENDOR_DIR}}/scripts/check_gated_plan.py ...`
+   - `python3 {{VENDOR_DIR}}/scripts/check_gated_plan.py ...` only for a selected manifest
    - `python3 {{VENDOR_DIR}}/scripts/repo_state.py --repo . --json`
    - `python3 {{VENDOR_DIR}}/scripts/workstream.py sync-index --confirm` only when
      the repo uses that ledger and its inventory changed
-   - `python3 -m py_compile {{VENDOR_DIR}}/scripts/check_gated_plan.py {{VENDOR_DIR}}/scripts/workstream.py {{VENDOR_DIR}}/scripts/repo_state.py {{VENDOR_DIR}}/scripts/install.py`
+   - Python syntax/tests when Python changes warrant them; do not rerun unrelated
+     checks solely to produce adoption receipts
 11. Summarize:
    - what changed
    - what was verified
