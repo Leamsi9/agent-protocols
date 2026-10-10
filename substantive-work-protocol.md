@@ -31,23 +31,23 @@ use this protocol unless there is a very good reason not to.
    creating the branch. The examples in this package assume `main`; if the repo
    uses another trunk branch, record that explicitly in the plan and the
    checks.
-3. Every substantive branch should have its own dedicated worktree. Do not
-   implement multiple active substantive streams in the same checkout. Record
-   the branch/worktree binding in the plan manifest and prove it with
-   `git_branch_worktree` before treating the branch as runnable or ready. Set
-   `current = true` when the gate is supposed to validate the checkout from
-   which the phase checker is running; registration of the right branch in a
-   different worktree is inventory evidence, not proof that the current source
-   is the reviewed source.
-4. If the work spans repos, create a matching branch pair and keep each repo in
-   its own worktree.
-5. Use gated phases at real dependency, review, or acceptance boundaries. A
-   single implementation slice can use one execution phase; do not invent phases
-   solely for planning, documentation updates, or status reporting.
-6. Only one phase may be actively implemented at a time.
-7. Do not advance until the current phase exit gate passes.
-8. Do not call work complete from narrative judgement alone. Completion must be
-   backed by the phase checker and the documented gate.
+3. Every substantive branch has its own dedicated worktree. Keep independent
+   streams isolated and record the branch/worktree binding in the plan. Verify
+   the current checkout against live Git state; an optional `git_branch_worktree`
+   check can automate this with `current = true`.
+4. If the work spans repos, keep each repo in its own branch/worktree and use one
+   canonical plan owner.
+5. Use gates at consequential dependency, review, publication or acceptance
+   boundaries. Ask whether a competent engineer needs the evidence before that
+   action. Do not add gates merely because a process step is recoverable or a
+   previous task used one.
+6. One concise plan is sufficient by default. Phases, machine-readable manifests,
+   receipts and checkers are optional tools when a real boundary benefits from
+   them, not prerequisites for every edit, handoff or status update.
+7. Respect actual dependencies and writer ownership. Independent slices need not
+   wait on an artificial single-active-phase rule.
+8. Back completion claims with relevant evidence. A checker is one way to record
+   that evidence; a concise plan with commands, results and limitations suffices.
 9. Merge to the repo’s primary integration branch only after acceptance and
    final-green closure unless the documented deployment topology can create the
    acceptance artifact only from that integration branch. In that case, follow
@@ -69,15 +69,10 @@ use this protocol unless there is a very good reason not to.
     passing baseline before editing. Run risk-based pre-change checks where
     useful. After implementation, run the relevant behavioral checks and required
     phase gates; do not weaken tests to fit incomplete or buggy code.
-14. Before opening a PR, merging, or treating the branch's final commit as
-    complete, run a full-diff code review gate. When the toolchain supports it,
-    run that review in a fresh independent review context, preferably via a
-    subagent. Look especially for side effects on adjacent code paths, data
-    contracts, runtime configuration, migrations, permissions, public APIs, and
-    user-visible workflows. If the review identifies a plausible side effect,
-    add or run the narrow automated test, integration check, or documented
-    manual validation needed to prove the risk is mitigated. Do not guess that
-    side effects are safe.
+14. Independently review the full substantive diff and resolve credible side-effect
+    risks. Follow the repository's review order; absent an authorized override,
+    review before publication or merge. A source handoff may be committed for
+    review without claiming review or acceptance has already happened.
 15. For implementation work, a final `ready for review`, `complete`, or
     equivalent result requires a clean git checkpoint: `git status
     --porcelain --untracked-files=all` must be empty, `HEAD` must be ahead of
@@ -100,9 +95,10 @@ state:
 5. **Behavior accepted**: the requested behavior passes through the actual
    user or service path at the highest practical boundary.
 
-Treat this as an ordered, cumulative ladder for every runtime surface in the
-requested scope. A later state cannot be green while an earlier applicable
-state is pending, red, or unknown. Mark a state not applicable only with a
+These are distinct evidence claims, not a mandatory sequence of process phases.
+Follow local review/delivery order. Runtime behavioral acceptance depends on
+proven artifact/deployment identity and actual operation; publication alone does
+not prove source review or acceptance. Mark a state not applicable only with a
 recorded reason, such as a documentation-only change with no published or
 deployed artifact; a runtime change cannot skip artifact or deployment
 identity as not applicable.
@@ -136,15 +132,11 @@ For user-visible or cross-service changes:
 - If authentication, external state, specialized hardware, or another boundary
   makes final acceptance manual, encode that manual acceptance boundary in the
   plan and keep behavioral status pending until it is explicitly satisfied.
-- Behavioral evidence must be captured after the currently selected artifact
-  reached the real runtime. Record the immutable runtime fingerprint, the
-  deployment time, the separate browser or service session-start time, the
-  observation time, and the record-update time. Require the session to start
-  strictly after the latest deployment change, and require session start,
-  observation, then record update in that order. Reject equality at the
-  deployment boundary because it cannot prove the new runtime was available.
-  For browser checks, start a new session or force a full reload and record the
-  client build identity when the application exposes one.
+- Exercise the currently deployed artifact and record enough identity and timing
+  to distinguish it from stale runtime/client state. For browser checks use a
+  fresh session or full reload and capture the exposed client build identity.
+  Keep this evidence in the existing plan or deployment record; separate
+  session/observation/update receipts are not generic prerequisites.
 - For deployments selected by a mutable tag, **Runtime identity** requires both
   the selected tag-to-digest resolution and the live runtime-to-digest
   resolution. A successful update status without digest equality is not a
@@ -195,25 +187,25 @@ Use these meanings consistently:
 
 ## Artifact Economy
 
-Keep one concise plan and one adjacent `.plan.toml` in `docs/plans/` for the
-workstream. Reuse them across follow-up fixes, reviews, and resumptions within
-that scope. One orchestration repo owns cross-repo plans; other repos need only
-a pointer if local discoverability requires one. Do not create a plan family per
-worker, turn, review round, or deployment of the same slice.
+Keep one concise plan per workstream by default. Reuse it across implementation,
+follow-up fixes, review, publication and refresh; these are not separate planning
+workstreams. One orchestration repo owns cross-repo plans; other repos need only
+an optional pointer. Do not create a plan family per worker, turn or review round.
 
-The plan records the goal, baseline, branch/worktree binding, effective policy,
-write scope, acceptance boundary, phase order and unresolved decisions. The
-manifest owns executable checks; refer to them instead of copying commands and
-results into multiple documents. Put a compact closeout in the plan with result,
-revision, evidence locator and remaining limitations. Separate logs, ADRs,
-mirrors or per-phase notes require distinct lasting information and a reader.
+Record the goal, baseline, branch/worktree, effective policy, scope, acceptance
+boundary, selected validation, outcome and remaining limitations. Commands and
+concise results can live here. Add an adjacent `.plan.toml` only when executable
+checks at a real dependency or acceptance boundary help. Separate logs, receipts,
+ADRs or notes need distinct lasting information and a reader, or an explicit local
+requirement; they are not generic completion prerequisites.
 
 Use the [Plan protocol](plan-protocol.md) only for placement/schema questions,
 the [Proposal protocol](proposal-protocol.md) when implementation is deferred,
 and the [Temp doc protocol](temp-doc-protocol.md) when creating temporary notes.
 Scratch command output can stay in a task-scoped untracked temporary directory;
 do not create a repo document merely to delete it at closeout. Keep secrets,
-private operational state and original transcripts out of public Git.
+private operational state and original transcripts out of public Git. Preserve
+source/provenance for migrations and imported evidence.
 
 ## Context And Evidence Reuse
 
@@ -237,10 +229,12 @@ unit test result never substitutes for current deployment identity, permissions,
 liveness or user acceptance. Report commands once with concise results; keep full
 logs outside the prompt and inspect failures selectively.
 
-## Phase Structure
+## Optional Phase Structure
 
-Each phase should be small enough to fit in one working context window and one
-reviewable change slice.
+Use phases only for real dependencies or acceptance boundaries. If used, keep each
+phase a reviewable slice. The risk-based testing paragraphs below retain the
+0.0.21 policy: "required phase gates/checks" means gates selected for an actual
+boundary by the plan or applicable local policy, not mandatory phases for all work.
 
 For each phase record goal, write scope and exit checks. Add dependencies,
 negative assertions, or document updates when applicable; omit empty template
@@ -276,34 +270,25 @@ Examples:
 Require absence checks for removals, replacements and migrations. Additive work
 does not need an invented negative assertion.
 
-## Standard Execution Loop
+## Execution
 
-1. Inspect current integration state, sync with origin when policy expects it,
-   and create dedicated branch/worktree bindings. Preserve others' dirty work.
-2. Create or update the single plan/manifest and prove each binding with
-   `git_branch_worktree` before implementation. Run the repo-state audit when
-   available; retain a compact summary rather than loading the whole inventory.
-3. Load the active phase and relevant code. Select checks by behavioral risk
-   and the cheapest reliable level. Run pre-change checks or write a failing
-   test when useful to establish behavior, clarify a contract, or reproduce a
-   defect; do not require either as blanket sequencing.
-4. Implement the slice and update its required documentation. Run targeted tests
-   and the phase checker against this final phase state. Rerun affected gates
-   after subsequent edits; an unchanged documentation/status update alone is not
-   a reason to rerun unrelated tests.
-5. Advance only when the phase is green, subject to applicable local delivery
-   order. At closeout remove this task's temporary residue and perform the final
-   full-diff review below. Capture findings in the existing plan or review system.
-6. Use the [Pull request protocol](pull-request-protocol.md) when opening a PR.
-   Merge after acceptance/final gates, or use the documented controlled
-   integration rollout when acceptance requires a merge. Reuse valid review
-   evidence across PR preparation; opening a PR is not another review round.
+Inspect the baseline and dedicated checkout, then update the existing plan.
+Implement the bounded change and select validation by the risk-based rules above.
+Run relevant checks after the change; repeat only for changed inputs, failures or
+stale evidence. Record concise results, not per-step proof documents.
+
+At the repository's review boundary, obtain independent full-diff review and
+resolve findings. Remove owned temporary residue and commit the clean source
+result. Use the [Pull request protocol](pull-request-protocol.md) when opening a
+PR. Publication, refresh and acceptance remain part of the same workstream;
+report only the state actually attained. Follow local delivery order and preserve
+required user approvals without inventing approvals for routine recoverable steps.
 
 ## Repo-State Audit
 
-When `agent-protocols/scripts/repo_state.py` is available, use it as the first
-git-state classifier before making branch, worktree, pruning, deletion, or
-cleanup decisions:
+For ambiguous Git state or cleanup, use the available repo-state classifier
+before pruning or deleting. Ordinary isolated implementation can verify its
+checkout with `git status` and `git worktree list --porcelain`:
 
 ```bash
 python3 agent-protocols/scripts/repo_state.py --repo . --json
@@ -324,7 +309,7 @@ worktree state, or when the work includes cleanup.
 ## Temp Artifact Cleanup Gate
 
 Run this gate after implementation, validation evidence, and durable docs are
-in place, but before PR, merge, final code review, or final git checkpoint.
+in place, but before the final source checkpoint; this needs no separate phase or receipt.
 
 Inspect only the temporary locations and artifacts created or owned by this
 workstream. Preserve unrelated active notes. For each owned temporary artifact:
@@ -341,19 +326,15 @@ still active in the plan, completion log, or final result.
 
 ## Final Code Review Gate
 
-Run this gate after implementation and required docs updates are in place, but
-before opening a PR, merging, or reporting the branch's final commit as the
-complete reviewable result.
+Substantive source requires independent full-diff review at the repository's
+chosen boundary, before publication or merge by default. Explicit user instructions
+and authorized local delivery overrides control timing. Record findings in the
+existing plan or review system; no separate review plan or proof document is needed.
 
-When the toolchain supports it, run the review in a fresh independent review
-context, preferably via a subagent. Give the reviewer the diff, relevant
-protocols, test evidence, and acceptance criteria, but not the implementer's
-defensive rationale. The implementing agent still owns follow-up fixes,
-validation, and final responsibility for the branch.
-
-If a fresh independent review context is unavailable, record why it is
-unavailable and perform the best available independent-style full-diff review
-before proceeding.
+Use a fresh independent context with the diff, relevant policy, acceptance criteria
+and test evidence. A contributing implementer cannot certify independent review.
+If independent review is unavailable, report it pending; self-review can support a
+source handoff but cannot satisfy the independent-review requirement.
 
 The review must inspect the full branch diff against the recorded baseline and
 ask where the change could have side effects beyond the directly edited lines.
@@ -377,8 +358,8 @@ For each plausible risk, prove the mitigation before proceeding:
 
 If the review finds a real defect or an unproven risk, return to the relevant
 implementation phase. Resolve each credible side-effect risk with added or
-rerun tests, or record why it is not applicable. Do not proceed to PR, merge, or
-final branch checkpoint on "looks safe" reasoning alone.
+rerun tests, or record why it is not applicable. Do not cross the applicable
+review/acceptance boundary on "looks safe" reasoning alone. A clean source checkpoint for handoff does not claim review acceptance.
 
 After addressing review feedback, review the changed portion and its affected
 interfaces when the criteria below apply. Necessary follow-up validation belongs
@@ -419,7 +400,7 @@ The final checkpoint requires:
 
 - `git status --porcelain --untracked-files=all` is empty in the implementation
   worktree
-- `HEAD` is ahead of the baseline branch or commit recorded in the plan and
+- `HEAD` is ahead of the baseline branch or commit recorded in the plan and, if used,
   manifest
 - the branch is still bound to its registered implementation worktree when the
   branch remains active for review, testing, or runtime selection
@@ -434,7 +415,7 @@ Non-mutating exploratory work does not need a git checkpoint. If exploratory or
 proposal-only work creates durable repo artifacts, those artifacts must be
 committed or explicitly discarded before the work can be reported as complete.
 
-The final implementation or closeout phase should normally include both:
+When a manifest is useful, these optional checks can automate source closeout:
 
 ```toml
 [[phases.implementation.checks]]
@@ -575,8 +556,8 @@ Use `archive` when the artifact is still fundamentally a plan family. Use
 
 For large streams, the active context should be:
 
-- the current phase doc
-- the current manifest
+- the current plan section
+- the current manifest, if used
 - only the code and specs needed for that phase
 - only the review or ledger sections that the phase must update
 
@@ -585,7 +566,7 @@ with a smaller working set.
 
 ## Checker Contract
 
-Use the canonical checker:
+When using a manifest, run the canonical checker at the boundary it represents:
 
 ```bash
 python3 agent-protocols/scripts/check_gated_plan.py path/to/work.plan.toml --phase phase_name
@@ -597,7 +578,9 @@ Supported check types are illustrated in:
 
 ## Minimal Manifest Shape
 
-The manifest is TOML so it can be parsed with the Python standard library.
+Optional manifests retain the existing TOML schema and checker behavior; no
+migration is required for valid existing manifests. TOML can be parsed with the
+Python standard library.
 
 Use:
 
@@ -645,10 +628,8 @@ This rule is mandatory for substantive work:
   remote integration branch
 - create a dedicated worktree for that branch instead of reusing a checkout
   that already mixes multiple streams
-- add a manifest `git_branch_worktree` check that names the branch, and add a
-  `path` or product-surface `contains` assertion when the branch must be
-  runnable by repo tooling; set `current = true` for gates executed from that
-  implementation checkout
+- verify the branch/worktree binding with live Git; when automating this in a
+  manifest, use `git_branch_worktree` with `current = true` for the active checkout
 - if the work spans repos, create a matching branch pair
 - keep a stable integration worktree available for bootstrap paths, pulls,
   merges, pushes, and reconciliation
@@ -660,7 +641,7 @@ Planning-system changes are not exempt.
 The intended lifecycle is:
 
 1. branch from the integration baseline
-2. implement behind gated phases
+2. implement and validate the bounded change
 3. run every acceptance gate available before integration
 4. either accept a reversible pre-merge deployment and merge back to the
    integration baseline, or invoke the documented controlled integration
@@ -679,8 +660,8 @@ If a workstream is parked, superseded, or intentionally left partial, record
 that in the durable plan instead of silently leaving the branch as ambiguous
 truth.
 
-## Acceptance manifest validation
+## Optional acceptance manifest validation
 
-The checker validates all phases before executing commands. Every phase needs at least one check; phase order must include every phase exactly once with dependencies before dependents. Missing dependencies, cycles and duplicate identifiers fail closed. Existing manifests with empty placeholder phases must add meaningful checks or remove those phases before upgrading.
+These rules apply only when a manifest is used. The checker validates all phases before executing commands. Every phase needs at least one check; phase order must include every phase exactly once with dependencies before dependents. Missing dependencies, cycles and duplicate identifiers fail closed. Existing manifests with empty placeholder phases must add meaningful checks or remove those phases before upgrading.
 
 For unittest command acceptance, use `min_tests = 1`, `max_skipped = 0`, and `max_expected_failures = 0`. This opt-in contract rejects exit-zero commands without the required executed tests. It checks test-run evidence, not the substantive quality of the tests or deployed behavior. Other test runners require their own evidence adapters.

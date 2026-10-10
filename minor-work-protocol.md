@@ -5,7 +5,7 @@ This is the lightweight workflow for changes that do not warrant the
 treating with explicit, repeatable discipline.
 
 Use it for tiny edits, isolated fixes, single-file tweaks, dependency bumps,
-copy adjustments, and one-off cleanups where a full gated mini-plan would be
+copy adjustments, and one-off cleanups where a substantive plan would be
 heavier than the change.
 
 ## When To Use This
@@ -34,6 +34,13 @@ It does not replace:
 - the [Temp doc protocol](temp-doc-protocol.md) when the work generates
   scratch notes that should be reviewed and deleted
 - normal commit hygiene, code review, or test discipline
+
+Resolve repository instructions and matching local overlays first. Explicit user
+instructions and authorized local overrides take precedence within their scope;
+retain unaffected requirements. One concise record is enough; manifests, phase
+checkers and separate receipts are optional at useful boundaries. Ordinary minor
+work needs no new plan beyond the commit or PR. Follow the repository's review
+order, with prepublication review as the generic default.
 
 ## Core Rules
 
@@ -105,10 +112,11 @@ Escalate to the substantive protocol when any of these become true:
 - the change touches a public surface, contract, schema, or persisted format
 - the change requires more than one reviewable slice
 - the work uncovers a separate problem that is not obviously a one-line fix
-- the operator or a reviewer asks for a plan, manifest, or completion log
+- new requirements exceed the minor criteria (a request for a brief plan alone
+  does not increase implementation risk)
 
 When you escalate, preserve the current edits and baseline. Add the substantive
-plan/manifest and satisfy its dedicated branch/worktree gates before continuing.
+plan and satisfy its dedicated branch/worktree requirements before continuing.
 Reuse an already suitable branch/worktree; escalation does not require replaying
 completed work.
 
@@ -116,7 +124,7 @@ completed work.
 
 Do not use this protocol when the change:
 
-- needs gated phase evidence to be considered done
+- has consequential dependencies or acceptance risks that exceed the minor criteria
 - spans repos
 - needs a pending ADR or proposal log
 - is part of a larger workstream that already has a substantive plan
@@ -166,8 +174,9 @@ example plans that are not meant to survive. Leave no disposable residue from th
 
 ## Final Code Review Gate
 
-Inspect the full diff after implementation and required docs updates, before
-landing, PR or final checkpoint. Review adjacent call sites and affected contracts;
+Inspect the full diff after implementation and required docs updates at the
+repository's review boundary, before landing or publication by default. A committed
+source handoff may await review. Review adjacent call sites and affected contracts;
 resolve plausible side effects with focused tests or narrow manual validation.
 Record the result in the commit or PR; no separate review document is required.
 

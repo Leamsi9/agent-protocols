@@ -3,6 +3,12 @@
 This protocol keeps production and mainline changes inspectable, auditable, and
 reversible.
 
+Explicit user instructions and authorized repository-local overrides take
+precedence within their scope; retain unaffected requirements. Follow the repo's
+review and delivery order. The generic default is independent substantive review
+before publication/merge. Reuse the workstream plan and existing PR evidence;
+publication and refresh need no separate plan, manifest or receipt document.
+
 ## Rule
 
 Agents must not push directly to `main`.
@@ -25,12 +31,12 @@ policy or operator approval.
 2. Commit the scoped change on the branch.
 3. Run the final code review gate from the applicable substantive or minor
    work protocol, resolving any side-effect risk with tests or documented
-   validation before PR.
+   validation at the repository's required review boundary.
 4. Draft the PR body with the [Pull request protocol](pull-request-protocol.md).
 5. Push the branch and open a pull request to `main`.
 6. Let GitHub Actions run for the branch or PR when configured.
-7. Merge with GitHub PR tooling after checks pass or after recording why checks
-   are unavailable.
+7. Merge with GitHub PR tooling after required checks pass. Record unavailable
+   checks as pending unless an authorized repository policy permits proceeding.
 8. Prefer guarded CLI merges with the full `headRefOid`, for example
    `gh pr merge --merge --delete-branch --match-head-commit <headRefOid>`.
 9. Verify the post-merge `main` workflow or deployment when the repo has CI/CD

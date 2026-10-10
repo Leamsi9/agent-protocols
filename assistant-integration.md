@@ -22,6 +22,13 @@ Recommended approach:
    that may be projected into local Codex, Claude, Ironclaw, or repo-specific
    skill surfaces
 
+Explicit user instructions and authorized local overrides take precedence within
+their scope; keep unaffected base requirements. One concise plan per workstream
+is the default. Machine-readable manifests/checkers are optional at useful
+dependency or acceptance boundaries. Adapters must not add per-step proof files,
+review plans or receipt ceremonies. Preserve repository review/delivery order,
+independent substantive review, privacy and real-consumer acceptance.
+
 Do not fork the protocol docs into separate copies for each assistant.
 Do not hand-edit generated skill projections as independent source; update the
 package-owned skill first, then refresh the projection.
