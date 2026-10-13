@@ -146,31 +146,11 @@ worktree is created, follow the substantive protocol's naming convention.
 
 ## Closeout
 
-Closeout for minor work is:
-
-1. run the temp artifact cleanup gate: preserve durable content, then delete
-   temporary files, lock files, scratch inventories, and placeholder examples
-   that are not meant to survive
-2. review the full diff under the final review gate below; reuse valid review
-   evidence when preparing a PR
-3. ensure the change is on the integration branch and pushed when the repo
-   policy expects a remote checkpoint
-4. if a PR is required, write the PR body with the
-   [Pull request protocol](pull-request-protocol.md)
-5. delete the local branch if one was used
-6. add a decision-log entry only when the decision is worth preserving
-
-A decision-log entry is not a substitute for substantive completion evidence.
-It is a lightweight historical breadcrumb, not a gate.
-
-## Temp Artifact Cleanup Gate
-
-Run this gate after the focused change and validation evidence are in place,
-but before final code review, landing, or final git checkpoint.
-
-Review temporary artifacts owned by this change; preserve unrelated work. Promote any durable finding into the right long-lived surface, then
-delete temporary files, editor lock files, scratch outputs, and placeholder
-example plans that are not meant to survive. Leave no disposable residue from this task; do not sweep other tasks' notes.
+Review the change and complete the repository's expected commit or PR. Remove
+owned scratch files or temporary processes when they are no longer useful;
+preserve unrelated work. Keep a finding in an existing record only when useful.
+No separate cleanup gate, global inventory or scratch-promotion step is required.
+Clean up the finished branch/worktree when appropriate to the task and delivery.
 
 ## Final Code Review Gate
 
@@ -190,24 +170,12 @@ materially changed behavior, expanded scope or unresolved risk, subject to the
 applicable substantive criteria. Do not commission another worker just to reread
 an unchanged diff, or seek new approval for necessary in-scope follow-up.
 
-## Repo-State Audit
+## Git inspection
 
-For ordinary clean minor edits, `git status --short --branch` may be enough.
-When the task mentions stale worktrees, orphan directories, dirty branches,
-shadowed checkouts, cleanup, or ambiguous git state, run:
-
-```bash
-python3 agent-protocols/scripts/repo_state.py --repo . --json
-```
-
-Run it after reading the repo instructions and identifying scope, but before
-manual pruning, branch deletion, checkout-directory deletion, or cleanup
-classification.
-
-Use `--apply-safe-cleanup` only after the plain audit has identified
-deterministic safe actions and cleanup is within the requested scope. Do not
-use safe cleanup on dirty, unmerged, ahead, active, security-sensitive, or
-otherwise ambiguous state.
+Inspect the affected checkout. Use direct Git checks for targeted cleanup, and
+`repo_state.py` when a broader inventory helps resolve ambiguity. Preserve useful
+changes and active work; apply existing authorization without a new approval or
+mandatory before/after audit.
 
 ## Final Git Checkpoint
 
