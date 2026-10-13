@@ -79,9 +79,9 @@ order, with prepublication review as the generic default.
 10. Any final `ready for review`, `complete`, `passed`, or equivalent result
    requires a clean git checkpoint. A dirty worktree at final response time is
    a failed gate, not a degraded completion.
-11. If the work involves branch/worktree cleanup or ambiguous git state, run
-   `agent-protocols/scripts/repo_state.py` before pruning, deleting, or
-   classifying git artifacts by hand.
+11. For Git cleanup, inspect the affected work and preserve useful changes. Use
+   `repo_state.py` when a wider inventory helps resolve ambiguity; ordinary
+   targeted cleanup needs no global audit or separate report.
 
 ## Lightweight Decision Log
 

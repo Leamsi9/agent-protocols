@@ -284,45 +284,17 @@ PR. Publication, refresh and acceptance remain part of the same workstream;
 report only the state actually attained. Follow local delivery order and preserve
 required user approvals without inventing approvals for routine recoverable steps.
 
-## Repo-State Audit
+## Working-tree and temporary-file hygiene
 
-For ambiguous Git state or cleanup, use the available repo-state classifier
-before pruning or deleting. Ordinary isolated implementation can verify its
-checkout with `git status` and `git worktree list --porcelain`:
+Inspect the checkout and artifacts affected by the task. Use direct Git checks
+for a targeted operation; the repo-state classifier is available when a broader
+inventory helps resolve ambiguity. Ordinary work does not require a global audit
+before or after cleanup.
 
-```bash
-python3 agent-protocols/scripts/repo_state.py --repo . --json
-```
-
-"First" means after reading the applicable repo instructions and identifying
-the work scope, but before manual `git worktree prune`, branch deletion,
-checkout-directory deletion, or cleanup classification.
-
-Use `--apply-safe-cleanup` only after a plain audit has shown deterministic safe
-actions and cleanup is in scope. It must not be used to resolve dirty
-worktrees, unmerged branches, ahead branches, active review branches, secrets,
-migrations, production state, or any ambiguous path.
-
-Run a second plain audit before closeout when the phase changes branch or
-worktree state, or when the work includes cleanup.
-
-## Temp Artifact Cleanup Gate
-
-Run this gate after implementation, validation evidence, and durable docs are
-in place, but before the final source checkpoint; this needs no separate phase or receipt.
-
-Inspect only the temporary locations and artifacts created or owned by this
-workstream. Preserve unrelated active notes. For each owned temporary artifact:
-
-- promote durable findings into `docs/plans/`, `docs/proposals/`, `docs/adr/`,
-  `docs/history/`, a completion log, or the commit message
-- keep only active notes that are still needed for an ongoing unclosed branch
-- delete scratch inventories, draft ledgers, temporary JSON outputs, editor
-  lock files, generated test remnants, and placeholder example plans that are
-  not meant to survive
-
-At closeout, this task should leave no disposable residue. If a temp artifact must remain, record why it is
-still active in the plan, completion log, or final result.
+Remove disposable files and processes this task created when they are no longer
+useful. Preserve unrelated work and useful source. Keep a finding in the existing
+plan or commit only when it helps future work; do not promote scratch inventories
+into permanent documents merely because they were generated.
 
 ## Final Code Review Gate
 
@@ -446,43 +418,16 @@ work may still finish, but it must finish as `degraded_verification`.
 
 ## Clean Git Closeout
 
-When the operator asks to "clean git", do not treat that as generic pruning.
-Treat it as a reconciliation pass that must end every non-main branch in one of
-these dispositions:
+Clean the scope requested by the user. One finished worktree does not require
+reconciling every branch, promoting unrelated proposals, pushing all work, or
+moving the integration checkout to another branch. Use Git-managed removal for
+clean delivered worktrees; retain branches when useful. Ancestry is not sufficient
+for cherry-picked delivery, so compare patches when that matters.
 
-1. merge to `main`, push, then remove the related branch and worktree
-2. promote pending proposal artifacts onto `main` without leaving a live
-   implementation branch behind
-3. keep the branch active because substantive implementation is still in
-   progress
-4. discard or supersede the branch after recording the decision durably
-
-Use the reconciliation inventory first:
-
-```bash
-python3 agent-protocols/scripts/workstream.py reconcile --json
-```
-
-The reconciliation output should compare every live branch and dirty worktree
-against `main`, summarize the remaining path-level deltas, and recommend which
-disposition each stream should take.
-
-Completed or proposal-ready work should be promoted into `main` rather than
-left on side branches. Historical or safety refs should remain exceptional and
-explicitly named as preserved history, not as default residue from ordinary
-closeout.
-
-A clean closeout should leave the integration worktree back on a clean
-`main`, with obsolete branch worktrees removed instead of lingering as
-ambiguous truth.
-
-Once the branch result is committed on `origin/main` and the remote checkpoint
-exists, delete the local branch and remove its dedicated worktree unless there
-is an explicit reason to preserve them.
-
-If follow-up work is needed later, create a new branch from `main` or from the
-relevant merge commit instead of treating the old implementation branch as
-durable infrastructure.
+Preserve dirty, active or undelivered work unless its disposal is authorized.
+Resolve material ambiguity before removal, applying existing user authorization
+without inventing a new approval step. Summarize useful removals or unresolved
+work; no mandatory disposition ledger or cleanup certificate is required.
 
 ## Map Refresh At Closeout
 
