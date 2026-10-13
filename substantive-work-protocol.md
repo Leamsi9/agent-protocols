@@ -73,89 +73,33 @@ use this protocol unless there is a very good reason not to.
     risks. Follow the repository's review order; absent an authorized override,
     review before publication or merge. A source handoff may be committed for
     review without claiming review or acceptance has already happened.
-15. For implementation work, a final `ready for review`, `complete`, or
-    equivalent result requires a clean git checkpoint: `git status
-    --porcelain --untracked-files=all` must be empty, `HEAD` must be ahead of
-    the recorded baseline, and the final answer or completion record must
-    include branch, commit, pushed: yes/no, and worktree_clean: true/false.
-    A dirty worktree at final response is a failed gate, not a degraded
-    completion.
+15. Leave a reviewable source checkpoint and identify relevant uncommitted work.
+    Preserve unrelated files. Commit before publication where the repository's
+    release tooling requires it; ordinary progress needs no clean-tree certificate.
 
-## Behavioral Acceptance And Green Revocation
+## Verification and reporting
 
-Keep these evidence states separate. Passing one state does not imply any later
-state:
+Choose checks that answer the actual engineering question. A source test,
+successful build, deployed artifact, healthy service and working user interaction
+establish different things; report what was actually observed without promoting
+one into another. There is no required ladder of evidence states or receipt
+collection. Use the existing plan, review or deployment record when a result is
+useful to retain.
 
-1. **Implementation verified**: source-level tests and review pass.
-2. **Artifact published**: the intended commit was packaged and is available.
-3. **Deployment applied**: the live runtime resolves to the intended immutable
-   artifact. For mutable or semantic image tags, compare the tag's current
-   registry digest with the runtime's resolved digest.
-4. **Runtime operational**: infrastructure health and basic smoke checks pass.
-5. **Behavior accepted**: the requested behavior passes through the actual
-   user or service path at the highest practical boundary.
+For UI or service changes, exercise the affected consumer at a practical boundary.
+A helper-only test or mocked response cannot establish live behavior. Where live
+acceptance requires unavailable access or hardware, state that limitation in plain
+language. Do not invent a completion status to represent it.
 
-These are distinct evidence claims, not a mandatory sequence of process phases.
-Follow local review/delivery order. Runtime behavioral acceptance depends on
-proven artifact/deployment identity and actual operation; publication alone does
-not prove source review or acceptance. Mark a state not applicable only with a
-recorded reason, such as a documentation-only change with no published or
-deployed artifact; a runtime change cannot skip artifact or deployment
-identity as not applicable.
+Check installed identity when a deployment or stale-version concern makes it
+relevant. Mutable image tags may require comparing resolved digests; a documentation
+edit does not. Choose observations and records in proportion to the real risk,
+without turning direct checks into a new certificate framework.
 
-Use `fixed`, `working`, `healthy`, `complete`, or an equivalent unqualified
-behavioral claim only when the requested scope has reached **Behavior
-accepted**. Before then, report the exact attained state, such as "published,
-not deployed" or "deployed and operational; authenticated acceptance
-outstanding."
-
-Static document checks such as `text_present`, `text_absent`, `path_exists`, or
-`regex_present` can prove only properties of that local document or tree. They
-must not be used as deployment, runtime-health, external-state, or behavioral
-acceptance evidence. For those gates, run a command that queries the current
-authoritative system and compares immutable identity; fail when credentials or
-the authoritative system are unavailable. Wrapping a static file, hard-coded
-success value, or cached response in a `command` check does not make it live
-evidence. A live command must fail on unavailable or mismatched authoritative
-state and report the identities and timestamps it actually compared.
-
-For user-visible or cross-service changes:
-
-- Trace every acceptance fixture to the canonical contract shape used by the
-  real consumer. Prefer a captured, sanitized production-like response or an
-  established canonical fixture, and record its provenance. An invented
-  helper fixture must not be the sole promotion gate.
-- Exercise the actual consumer component, route, command, or service seam.
-  Array order, coordinate arithmetic, mocked adapters, and helper-unit tests
-  are supporting evidence; they do not alone prove the rendered page or
-  cross-service workflow.
-- If authentication, external state, specialized hardware, or another boundary
-  makes final acceptance manual, encode that manual acceptance boundary in the
-  plan and keep behavioral status pending until it is explicitly satisfied.
-- Exercise the currently deployed artifact and record enough identity and timing
-  to distinguish it from stale runtime/client state. For browser checks use a
-  fresh session or full reload and capture the exposed client build identity.
-  Keep this evidence in the existing plan or deployment record; separate
-  session/observation/update receipts are not generic prerequisites.
-- For deployments selected by a mutable tag, **Runtime identity** requires both
-  the selected tag-to-digest resolution and the live runtime-to-digest
-  resolution. A successful update status without digest equality is not a
-  deployment green. Tie behavior evidence to that proven live identity. If the
-  mutable tag moves after identity or behavior was accepted, that movement
-  revokes **Deployment applied** and every downstream state until digest
-  equality and the affected downstream gates are established again.
-- When the artifact format exposes source provenance, compare its embedded
-  source revision with the intended commit rather than trusting catalog text or
-  a tag alone. For behavior exercised through a public URL, also prove the
-  current domain, route, and integration resolve to the inspected runtime; a
-  healthy unreferenced function is not user-path deployment evidence.
-
-Any credible reproduction that contradicts an accepted result immediately
-revokes the prior behavioral green. Mark the affected gate red, preserve the
-reproduction as a failing test at the real boundary when practical, identify
-why the earlier evidence missed it, and rerun every downstream gate after the
-correction. Do not dismiss the contradiction as cache, environment, or user
-error without direct evidence.
+A reproduced defect changes the assessment: repair or roll back as appropriate,
+retain a useful regression, and rerun affected checks. Reuse unaffected results.
+Do not blame caches, users or environment without a basis, or rerun every later
+check merely because a prior step changed.
 
 ### Non-circular deployment topology
 
@@ -362,59 +306,19 @@ true:
 - remaining risks are documented as mitigated, accepted, or not applicable
 - another review would mainly reread an unchanged diff
 
-## Final Git Checkpoint
+## Source checkpoint
 
-Before reporting implementation work as `ready for review`, `complete`,
-`passed`, or an equivalent terminal state, prove the branch contains the
-reviewable result.
-
-The final checkpoint requires:
-
-- `git status --porcelain --untracked-files=all` is empty in the implementation
-  worktree
-- `HEAD` is ahead of the baseline branch or commit recorded in the plan and, if used,
-  manifest
-- the branch is still bound to its registered implementation worktree when the
-  branch remains active for review, testing, or runtime selection
-- the final answer, job result, or completion log states `branch`, `commit`,
-  `pushed: yes/no`, and `worktree_clean: true/false`
-
-If durable source, doc, schema, or config changes remain uncommitted at final
-response time, the result is `failed_gate`. Do not report dirty implementation
-work as ready for review, and do not downgrade it to a degraded completion.
-
-Non-mutating exploratory work does not need a git checkpoint. If exploratory or
-proposal-only work creates durable repo artifacts, those artifacts must be
-committed or explicitly discarded before the work can be reported as complete.
-
-When a manifest is useful, these optional checks can automate source closeout:
-
-```toml
-[[phases.implementation.checks]]
-id = "repo-clean"
-type = "git_clean"
-repo = "."
-
-[[phases.implementation.checks]]
-id = "head-ahead-of-baseline"
-type = "git_head_ahead"
-repo = "."
-
-[[phases.implementation.checks]]
-id = "branch-worktree-bound"
-type = "git_branch_worktree"
-repo = "."
-current = true
-```
+Keep source changes reviewable and identify the commit when handing them over.
+Report material uncommitted work honestly; do not discard it to obtain a clean
+status. A deployment tool may require a clean committed checkout. This is not a
+universal final-answer gate or a requirement to print branch/status certificates.
 
 ## Browser And Mobile Verification
 
-Visual UI work must declare browser verification requirements. Mobile-sensitive
-work must also require a narrow viewport check.
-
-Evidence should record the route, viewport, browser/tool, target visibility,
-and any captured artifact path when available. If verification cannot run, the
-work may still finish, but it must finish as `degraded_verification`.
+Check affected UI interactions in a browser; use a narrow viewport when mobile
+behavior matters. State meaningful limitations plainly when that check cannot
+run. Keep useful results in the existing workstream; screenshots, detailed
+observation logs and a special degraded status are not mandatory.
 
 ## Clean Git Closeout
 
