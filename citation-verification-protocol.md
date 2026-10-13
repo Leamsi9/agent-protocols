@@ -9,11 +9,9 @@ reports, grant proposals, and similar research artefacts. It does not assume
 that the document is already correct. It proceeds through gated levels and does
 not advance from one level to the next until the current level is green.
 
-If the verification work is non-trivial, run it under the
-[Substantive Work Protocol](substantive-work-protocol.md). Create a dedicated
-branch and branch-owned worktree in the repo that owns the research artefact,
-then add a durable plan and adjacent `.plan.toml` manifest for the citation
-audit.
+Work on a branch of the repository that owns the research artefact, following
+[work-protocol.md](work-protocol.md). The ledgers below are the record of the
+audit; no separate plan or manifest is needed.
 
 ## Core Rule
 
@@ -49,8 +47,6 @@ claim.
 
 Use these repo-local artefacts for each audit:
 
-- durable plan: `docs/plans/<slice>.md`;
-- phase manifest: `docs/plans/<slice>.plan.toml`;
 - temporary audit ledger: `docs/temp/citation-source-audit.md`;
 - optional metadata overrides: `docs/temp/citation-metadata-overrides.toml`;
 - source-content ledger: `docs/temp/citation-content-support.toml`;
@@ -288,25 +284,6 @@ python3 agent-protocols/scripts/citation_check_audit_ledger.py \
 
 Exit gate: all quote rows are `verified` or `not_applicable`.
 
-## Gated Manifest Pattern
-
-A citation-verification workstream should normally use these ordered phases:
-
-```toml
-phase_order = [
-  "setup",
-  "citation_inventory",
-  "online_metadata",
-  "source_content",
-  "quotation_verification",
-  "closeout",
-]
-```
-
-Each phase should depend on the previous phase. Use command gates for the
-scripts above, plus `regex_absent` or `citation_check_audit_ledger.py` checks to
-prove there are no unresolved statuses.
-
 ## Failure Rules
 
 Use the smallest correction that makes the citation true:
@@ -326,11 +303,7 @@ audit status.
 
 Before reporting completion:
 
-1. re-run the manifest through the highest completed phase;
+1. re-run the ledger checks for every level you completed;
 2. run a bibliography or document build if the repo has one;
 3. report any remaining style warnings separately from citation validity;
-4. summarize corrected citations and blocked rows;
-5. state whether temporary ledgers are being preserved for review or folded into
-   durable docs;
-6. report branch, worktree, commit/push status, and whether the worktree is
-   clean.
+4. summarize corrected citations and blocked rows.
